@@ -37,7 +37,9 @@ namespace MyLazy
                 return result;
             }
             counted = true;
-            return result = supplier();
+            result = supplier();
+            supplier = null;
+            return result;
         }
     }
 }
