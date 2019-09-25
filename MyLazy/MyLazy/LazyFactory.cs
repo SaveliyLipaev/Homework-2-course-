@@ -13,17 +13,11 @@ namespace MyLazy
         /// <summary>
         /// Возвращает простоую реализацию Lazy
         /// </summary>
-        public static MySimpleLazy<T> CreateSimpleLazy(Func<T> supplier)
-        {
-            return new MySimpleLazy<T>(supplier);
-        }
+        public static MySimpleLazy<T> CreateSimpleLazy(Func<T> supplier) => new MySimpleLazy<T>(supplier);
 
         /// <summary>
         /// Возвращает многопоточную реализацию Lazy
         /// </summary>
-        public static MyMultithreadedLazy<T> CreateMymultithreadedLazy(Func<T> supplier)
-        {
-            return new MyMultithreadedLazy<T>(supplier);
-        }
+        public static MyMultithreadedLazy<T> CreateMymultithreadedLazy(Func<T> supplier) => new MyMultithreadedLazy<T>(supplier);
     }
 }
