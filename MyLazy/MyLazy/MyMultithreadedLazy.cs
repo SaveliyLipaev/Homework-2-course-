@@ -46,10 +46,7 @@ namespace MyLazy
                     return result = supplier();
                 }
             }
-            else
-            {
-                return result;
-            }
+            return result;
         }
     }
 }

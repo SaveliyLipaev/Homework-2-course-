@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MyLazy
 {
@@ -22,8 +20,8 @@ namespace MyLazy
         /// <summary>
         /// Флаг, если вычисление уже произошло, то true
         /// </summary>
-        private bool counted = false; 
-     
+        private bool counted = false;
+
         public MySimpleLazy(Func<T> supplier)
         {
             this.supplier = supplier;
@@ -38,11 +36,8 @@ namespace MyLazy
             {
                 return result;
             }
-            else
-            {
-                counted = true;
-                return result = supplier();
-            }
+            counted = true;
+            return result = supplier();
         }
     }
 }
