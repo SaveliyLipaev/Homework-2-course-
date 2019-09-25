@@ -36,6 +36,12 @@ namespace MyLazy
             {
                 return result;
             }
+
+            if (supplier == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             counted = true;
             result = supplier();
             supplier = null;
