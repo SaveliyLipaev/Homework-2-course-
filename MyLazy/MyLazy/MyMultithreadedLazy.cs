@@ -20,7 +20,7 @@ namespace MyLazy
         /// <summary>
         /// Флаг, если вычисление уже произошло, то true
         /// </summary>
-        private bool counted = false;
+        private volatile bool counted = false;
 
         private object locker = new object();
 
@@ -43,7 +43,9 @@ namespace MyLazy
                         return result;
                     }
                     counted = true;
-                    return result = supplier();
+                    result = supplier();
+                    supplier = null;
+                    return result;
                 }
             }
             return result;
