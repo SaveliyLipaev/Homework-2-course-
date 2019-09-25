@@ -42,9 +42,13 @@ namespace MyLazy
                     {
                         return result;
                     }
-                    counted = true;
+                    if (supplier == null)
+                    {
+                        throw new ArgumentNullException();
+                    }
                     result = supplier();
                     supplier = null;
+                    counted = true;
                     return result;
                 }
             }
