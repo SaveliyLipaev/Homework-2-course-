@@ -26,17 +26,16 @@ namespace MyLazyTests
             });
 
             threadArr = new List<Thread>();
-            for (int i = 0; i < 5; i++)
+            for (var i = 0; i < 5; i++)
             {
-                Thread devthread = new Thread(() => lazy.Get());
-                threadArr.Add(devthread);
+                Thread devThread = new Thread(() => lazy.Get());
+                threadArr.Add(devThread);
             }
         }
 
         [TestMethod]
         public void GetTests()
         {
-
             foreach (var thr in threadArr)
             {
                 thr.Start();
@@ -68,6 +67,28 @@ namespace MyLazyTests
             double oldTime = myStopwatchSecondGet.Elapsed.Seconds + (double)myStopwatchSecondGet.Elapsed.Milliseconds / 60;
 
             Assert.IsTrue(oldTime < 0.00001);
+        }
+
+        [TestMethod]
+        public void GetReturnSameValue()
+        {
+            var results = new int[threadArr.Count];
+            for (int i = 0; i < threadArr.Count; ++i)
+            {
+                var local = i;
+                threadArr[i] = new Thread(() => results[local] = lazy.Get());
+                threadArr[i].Start();
+            }
+
+            foreach (var thread in threadArr)
+            {
+                thread.Join();
+            }
+
+            for (var i = 0; i < results.Length; ++i)
+            {
+                Assert.AreEqual(45, results[i]);
+            }
         }
     }
 }

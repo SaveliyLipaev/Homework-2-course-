@@ -53,6 +53,12 @@ namespace MyLazyTests
             Assert.IsNull(lazy.Get());
         }
 
-
+        [TestMethod]
+        [ExpectedException(typeof(System.ArgumentNullException))]
+        public void SupplerIsNull()
+        {
+            var lazy = LazyFactory<object>.CreateSimpleLazy(null);
+            lazy.Get();
+        }
     }
 }
