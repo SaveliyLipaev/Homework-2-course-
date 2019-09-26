@@ -26,6 +26,10 @@ namespace MyLazy
 
         public MyMultithreadedLazy(Func<T> supplier)
         {
+            if (supplier == null)
+            {
+                throw new ArgumentNullException();
+            }
             this.supplier = supplier;
         }
 
@@ -42,10 +46,7 @@ namespace MyLazy
                     {
                         return result;
                     }
-                    if (supplier == null)
-                    {
-                        throw new ArgumentNullException();
-                    }
+
                     result = supplier();
                     supplier = null;
                     counted = true;

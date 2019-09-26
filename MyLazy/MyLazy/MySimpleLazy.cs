@@ -24,6 +24,11 @@ namespace MyLazy
 
         public MySimpleLazy(Func<T> supplier)
         {
+            if (supplier == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             this.supplier = supplier;
         }
 
@@ -35,11 +40,6 @@ namespace MyLazy
             if (counted)
             {
                 return result;
-            }
-
-            if (supplier == null)
-            {
-                throw new ArgumentNullException();
             }
 
             counted = true;
