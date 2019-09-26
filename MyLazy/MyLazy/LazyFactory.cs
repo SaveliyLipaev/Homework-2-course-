@@ -7,7 +7,6 @@ namespace MyLazy
     /// <summary>
     /// Класс, возвращающий две разные реализации ILazy<T>
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public static class LazyFactory<T>
     {
         /// <summary>
