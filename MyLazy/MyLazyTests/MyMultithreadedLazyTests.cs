@@ -1,8 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using MyLazy;
-using System.Threading;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace MyLazyTests
 {
@@ -66,17 +65,16 @@ namespace MyLazyTests
 
             double oldTime = myStopwatchSecondGet.Elapsed.Seconds + (double)myStopwatchSecondGet.Elapsed.Milliseconds / 60;
 
-            Assert.IsTrue(oldTime < 0.00001);
+            Assert.IsTrue(oldTime < 0.01);
         }
 
         [TestMethod]
         public void GetReturnSameValue()
         {
             var results = new int[threadArr.Count];
-            for (int i = 0; i < threadArr.Count; ++i)
+            for (var i = 0; i < threadArr.Count; ++i)
             {
-                var local = i;
-                threadArr[i] = new Thread(() => results[local] = lazy.Get());
+                threadArr[i] = new Thread(() => results[i] = lazy.Get());
                 threadArr[i].Start();
             }
 
@@ -89,6 +87,35 @@ namespace MyLazyTests
             {
                 Assert.AreEqual(45, results[i]);
             }
+        }
+
+        [TestMethod]
+        public void GetReturnSameObject()
+        {
+            var lazyObject = LazyFactory<object>.CreateMymultithreadedLazy(() => new object());
+
+            var threadMass = new List<Thread>();
+
+            var results = new object[5];
+
+            for (var i = 0; i < 5; ++i)
+            {
+                var local = i;
+                Thread devThread = new Thread(() => results[local] = lazyObject.Get());
+                threadMass.Add(devThread);
+                threadMass[i].Start();
+            }
+
+            foreach (var thread in threadMass)
+            {
+                thread.Join();
+            }
+
+            for (var i = 0; i < results.Length - 1; ++i)
+            {
+                Assert.IsTrue(results[i] == results[i + 1]);
+            }
+
         }
     }
 }
