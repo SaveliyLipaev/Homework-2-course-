@@ -8,6 +8,8 @@ namespace MyThreadPool
         private Func<TResult> function;
         private AutoResetEvent waitHandler = new AutoResetEvent(false);
         private AggregateException exception;
+        private TResult result;
+
         public bool IsComleted { get; private set; } = false;
 
         public TResult Result 
@@ -17,12 +19,11 @@ namespace MyThreadPool
                 waitHandler.WaitOne();
                 if (exception != null)
                 {
-                    return Result;
+                    return result;
                 }
 
                 throw exception;
             }
-            private set => Result = value; 
         }
 
 
@@ -42,7 +43,7 @@ namespace MyThreadPool
         {
             try
             {
-                Result = function();
+                result = function();
             }
             catch(Exception ex)
             {
