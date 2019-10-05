@@ -17,7 +17,7 @@ namespace MyThreadPool
 
         public void AddTask<TResult>(Func<TResult> task)
         {
-            if (stopToken.Token.IsCancellationRequested)
+            if (stopToken.IsCancellationRequested)
             {
                 return;
             }
@@ -38,7 +38,7 @@ namespace MyThreadPool
                 {
                     while (true)
                     {
-                        if (stopToken.Token.IsCancellationRequested)
+                        if (stopToken.IsCancellationRequested)
                         {
                             break;
                         }
