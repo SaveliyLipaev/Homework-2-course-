@@ -5,31 +5,59 @@ using System.Threading;
 
 namespace MyThreadPool
 {
+    /// <summary>
+    /// Сlass implementing a simple thread pool.
+    /// </summary>
     public class MyThreadPool
     {
         private CancellationTokenSource stopToken = new CancellationTokenSource();
         private BlockingCollection<Action> queueTask = new BlockingCollection<Action>();
 
+        public int NumberOfThreads { get; }
+
         public MyThreadPool(int numberOfThreads)
         {
+            NumberOfThreads = numberOfThreads;
             CreateThreads(numberOfThreads);
         }
 
-        public void AddTask<TResult>(Func<TResult> task)
+        /// <summary>
+        /// Adding a new task to the thread pool
+        /// </summary>
+        public IMyTask<TResult> AddTask<TResult>(Func<TResult> func)
         {
-            if (stopToken.IsCancellationRequested)
+            if (stopToken.Token.IsCancellationRequested)
             {
-                return;
+                throw new InvalidOperationException("Thread pool has been shutted down");
             }
-            queueTask.Add(new MyTask<TResult>(task).Calculate);
+
+            var task = new MyTask<TResult>(func, this);
+
+            try
+            {
+                queueTask.Add(task.Calculate, stopToken.Token);
+            }
+            catch
+            {
+                throw new Exception("Thread pool has been shutted down");
+            }
+
+            return task;
         }
 
+        /// <summary>
+        /// Prohibition to add new tasks.
+        /// </summary>
         public void Shutdown()
         {
             stopToken.Cancel();
+            queueTask?.CompleteAdding();
             queueTask = null;
         }
 
+        /// <summary>
+        /// Thread creation.
+        /// </summary>
         private void CreateThreads(int numberOfThreads)
         {   
             for (var i = 0; i < numberOfThreads; ++i)

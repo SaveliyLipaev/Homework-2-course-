@@ -3,8 +3,12 @@ using System.Threading;
 
 namespace MyThreadPool
 {
+    /// <summary>
+    /// Class that implements the task.
+    /// </summary>
     public class MyTask<TResult> : IMyTask<TResult>
     {
+        private MyThreadPool threadPool;
         private Func<TResult> function;
         private AutoResetEvent waitHandler = new AutoResetEvent(false);
         private AggregateException exception;
@@ -17,7 +21,7 @@ namespace MyThreadPool
             get
             {
                 waitHandler.WaitOne();
-                if (exception != null)
+                if (exception == null)
                 {
                     return result;
                 }
@@ -26,26 +30,27 @@ namespace MyThreadPool
             }
         }
 
-
-        public MyTask(Func<TResult> task)
+        public MyTask(Func<TResult> task, MyThreadPool threadPool)
         {
             function = task;
+            this.threadPool = threadPool;
         }
 
-        public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> func)
-        {
-            var newTask = new MyTask<TNewResult>(() => func(Result));
-            new Thread(newTask.Calculate);
-            return newTask;
-        }
+        /// <summary>
+        /// Add new task based on result of this task.
+        /// </summary>
+        public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> func) => threadPool.AddTask(() => func(Result));
 
+        /// <summary>
+        /// Calculate task and assings Result and IsCompleted properties.
+        /// </summary>
         public void Calculate()
         {
             try
             {
                 result = function();
             }
-            catch(Exception ex)
+            catch(Exception ex) 
             {
                 exception = new AggregateException(ex);
             }
