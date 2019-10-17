@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace MyThreadPoolTests
@@ -21,7 +20,7 @@ namespace MyThreadPoolTests
         {
             int numberOfEvaluatedTasks = 0;
             for (var i = 0; i < 10; ++i)
-            {   
+            {
                 threadPool.AddTask(() =>
                 {
                     Interlocked.Increment(ref numberOfEvaluatedTasks);

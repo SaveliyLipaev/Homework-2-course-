@@ -8,7 +8,7 @@ namespace MyThreadPool
     /// <summary>
     /// Сlass implementing a simple thread pool.
     /// </summary>
-    public class MyThreadPool
+    public partial class MyThreadPool
     {
         private CancellationTokenSource stopToken = new CancellationTokenSource();
         private BlockingCollection<Action> queueTask = new BlockingCollection<Action>();
