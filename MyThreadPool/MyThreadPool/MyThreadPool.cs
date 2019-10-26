@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Collections.Generic;
 
 
 namespace MyThreadPool
@@ -12,6 +13,7 @@ namespace MyThreadPool
     {
         private CancellationTokenSource stopToken = new CancellationTokenSource();
         private BlockingCollection<Action> queueTask = new BlockingCollection<Action>();
+        private int numberOfThreadsCompletedWork = 0;
 
         public int NumberOfThreads { get; }
 
@@ -44,6 +46,13 @@ namespace MyThreadPool
 
             return task;
         }
+        
+        public Action AddAction(Action action)
+        {
+            queueTask.Add(action);
+
+            return action;
+        }
 
         /// <summary>
         /// Prohibition to add new tasks.
@@ -53,6 +62,13 @@ namespace MyThreadPool
             stopToken.Cancel();
             queueTask?.CompleteAdding();
             queueTask = null;
+            while (true)
+            {
+                if(numberOfThreadsCompletedWork == NumberOfThreads)
+                {
+                    break;
+                }
+            }
         }
 
         /// <summary>
@@ -68,6 +84,7 @@ namespace MyThreadPool
                     {
                         if (stopToken.IsCancellationRequested)
                         {
+                            Interlocked.Increment(ref numberOfThreadsCompletedWork);
                             break;
                         }
 
@@ -83,6 +100,7 @@ namespace MyThreadPool
             private Func<TResult> function;
             private ManualResetEvent waitHandler = new ManualResetEvent(false);
             private AggregateException exception;
+            private Queue<Action> localQueue;
             private TResult result;
 
             public bool IsComleted { get; private set; } = false;
@@ -105,12 +123,24 @@ namespace MyThreadPool
             {
                 function = task;
                 this.threadPool = threadPool;
+                localQueue = new Queue<Action>();
             }
 
             /// <summary>
             /// Add new task based on result of this task.
             /// </summary>
-            public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> func) => threadPool.AddTask(() => func(Result));
+            public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> func) // threadPool.AddTask(() => func(Result));
+            {
+                var newTask = new MyTask<TNewResult>(() => func(Result), threadPool);
+
+                if (IsComleted)
+                {
+                    return threadPool.AddTask(() => func(Result));
+                }
+                //if the task has not been completed yet, add it to the local queue
+                localQueue.Enqueue(newTask.Calculate);
+                return newTask;
+            }
 
             /// <summary>
             /// Calculate task and assings Result and IsCompleted properties.
@@ -129,6 +159,12 @@ namespace MyThreadPool
                 IsComleted = true;
                 function = null;
                 waitHandler.Set();
+
+                while (localQueue.Count != 0)
+                {
+                    threadPool.AddAction(localQueue.Dequeue());
+                }
+
             }
         }
     }

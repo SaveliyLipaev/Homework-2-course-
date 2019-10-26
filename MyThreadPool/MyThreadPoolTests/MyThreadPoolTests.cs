@@ -96,5 +96,28 @@ namespace MyThreadPoolTests
             Thread.Sleep(400);
             Assert.IsTrue(flag);
         }
+
+        [TestMethod]
+        public void ContinueWithTaskCalculatesAfterMainTask()
+        {
+            var flag = false;
+
+            var task = threadPool.AddTask(() =>
+            {
+                flag = false;
+                return 2;
+            });
+
+            task.ContinueWith((x) =>
+            {
+                flag = true;
+                return x;
+            });
+
+            Thread.Sleep(200);
+            Assert.IsTrue(flag);
+
+            threadPool.Shutdown();
+        }
     }
 }
