@@ -49,7 +49,7 @@ namespace MyThreadPool
         
         public Action AddAction(Action action)
         {
-            queueTask.Add(action);
+            queueTask.Add(action, stopToken.Token);
 
             return action;
         }
@@ -64,7 +64,8 @@ namespace MyThreadPool
             queueTask = null;
             while (true)
             {
-                if(numberOfThreadsCompletedWork == NumberOfThreads)
+                Console.WriteLine(numberOfThreadsCompletedWork);
+                if (numberOfThreadsCompletedWork == NumberOfThreads)
                 {
                     break;
                 }
@@ -82,13 +83,16 @@ namespace MyThreadPool
                 {
                     while (true)
                     {
-                        if (stopToken.IsCancellationRequested)
+                        if (stopToken.Token.IsCancellationRequested)
                         {
                             Interlocked.Increment(ref numberOfThreadsCompletedWork);
                             break;
                         }
 
-                        queueTask?.Take().Invoke();
+                        if (queueTask.Count != 0)
+                        {
+                            queueTask.Take().Invoke();
+                        }
                     }
                 }).Start();
             }
@@ -137,6 +141,7 @@ namespace MyThreadPool
                 {
                     return threadPool.AddTask(() => func(Result));
                 }
+
                 //if the task has not been completed yet, add it to the local queue
                 localQueue.Enqueue(newTask.Calculate);
                 return newTask;

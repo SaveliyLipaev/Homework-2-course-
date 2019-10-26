@@ -1,4 +1,4 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading;
 
@@ -24,22 +24,13 @@ namespace MyThreadPoolTests
                 threadPool.AddTask(() =>
                 {
                     Interlocked.Increment(ref numberOfEvaluatedTasks);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
                     return 5;
                 });
             }
 
             Thread.Sleep(500);
             Assert.IsTrue(numberOfEvaluatedTasks == threadPool.NumberOfThreads);
-            threadPool.Shutdown();
-        }
-
-        [TestMethod]
-        public void TaskWorkRight()
-        {
-            int GetInt() => 57;
-            var Task = threadPool.AddTask(GetInt);
-            Assert.AreEqual(GetInt(), Task.Result);
             threadPool.Shutdown();
         }
 
@@ -93,7 +84,7 @@ namespace MyThreadPoolTests
                 return x;
             });
 
-            Thread.Sleep(400);
+            Thread.Sleep(500);
             Assert.IsTrue(flag);
         }
 
@@ -117,7 +108,6 @@ namespace MyThreadPoolTests
             Thread.Sleep(200);
             Assert.IsTrue(flag);
 
-            threadPool.Shutdown();
         }
     }
 }
