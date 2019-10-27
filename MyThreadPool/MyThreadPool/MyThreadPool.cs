@@ -9,7 +9,7 @@ namespace MyThreadPool
     /// <summary>
     /// Сlass implementing a simple thread pool.
     /// </summary>
-    public partial class MyThreadPool
+    public class MyThreadPool
     {
         private CancellationTokenSource stopToken = new CancellationTokenSource();
         private BlockingCollection<Action> queueTask = new BlockingCollection<Action>();
@@ -46,8 +46,16 @@ namespace MyThreadPool
 
             return task;
         }
-        
-        public Action AddAction(Action action)
+
+        /// <summary>
+        /// Lets you know if the thread pool is closed
+        /// </summary>
+        public bool ThreadPoolIsClosed => NumberOfThreads == numberOfThreadsCompletedWork;
+
+        /// <summary>
+        /// Allows you to add action to the pool, needed for continuewith
+        /// </summary>
+        private Action AddAction(Action action)
         {
             queueTask.Add(action, stopToken.Token);
 
@@ -62,14 +70,6 @@ namespace MyThreadPool
             stopToken.Cancel();
             queueTask?.CompleteAdding();
             queueTask = null;
-            while (true)
-            {
-                Console.WriteLine(numberOfThreadsCompletedWork);
-                if (numberOfThreadsCompletedWork == NumberOfThreads)
-                {
-                    break;
-                }
-            }
         }
 
         /// <summary>
@@ -88,11 +88,8 @@ namespace MyThreadPool
                             Interlocked.Increment(ref numberOfThreadsCompletedWork);
                             break;
                         }
-
-                        if (queueTask.Count != 0)
-                        {
-                            queueTask.Take().Invoke();
-                        }
+                            
+                        queueTask?.Take().Invoke();
                     }
                 }).Start();
             }
@@ -106,6 +103,7 @@ namespace MyThreadPool
             private AggregateException exception;
             private Queue<Action> localQueue;
             private TResult result;
+            private object locker = new object();
 
             public bool IsComleted { get; private set; } = false;
 
@@ -133,18 +131,21 @@ namespace MyThreadPool
             /// <summary>
             /// Add new task based on result of this task.
             /// </summary>
-            public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> func) // threadPool.AddTask(() => func(Result));
+            public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> func)
             {
                 var newTask = new MyTask<TNewResult>(() => func(Result), threadPool);
 
-                if (IsComleted)
+                lock (locker)
                 {
-                    return threadPool.AddTask(() => func(Result));
-                }
+                    if (IsComleted)
+                    {
+                        return threadPool.AddTask(() => func(Result));
+                    }
 
-                //if the task has not been completed yet, add it to the local queue
-                localQueue.Enqueue(newTask.Calculate);
-                return newTask;
+                    //if the task has not been completed yet, add it to the local queue
+                    localQueue.Enqueue(newTask.Calculate);
+                    return newTask;
+                }
             }
 
             /// <summary>
@@ -154,22 +155,26 @@ namespace MyThreadPool
             {
                 try
                 {
-                    result = function();    
+                    result = function();
                 }
                 catch (Exception ex)
                 {
                     exception = new AggregateException(ex);
                 }
-
-                IsComleted = true;
-                function = null;
-                waitHandler.Set();
-
-                while (localQueue.Count != 0)
+                finally
                 {
-                    threadPool.AddAction(localQueue.Dequeue());
-                }
+                    lock (locker)
+                    {
+                        IsComleted = true;
+                        function = null;
+                        waitHandler.Set();
 
+                        while (localQueue.Count != 0)
+                        {
+                            threadPool.AddAction(localQueue.Dequeue());
+                        }
+                    }
+                }
             }
         }
     }

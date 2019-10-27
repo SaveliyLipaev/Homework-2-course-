@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace MyThreadPoolTests
@@ -107,7 +108,52 @@ namespace MyThreadPoolTests
 
             Thread.Sleep(200);
             Assert.IsTrue(flag);
-
         }
+
+        [TestMethod]
+        public void ContinueWithNotBlockThread()
+        {
+            var isThreadBlock = true;
+            var task = threadPool.AddTask(() =>
+            {
+                Thread.Sleep(200);
+                return 1;
+            });
+            
+            task.ContinueWith((x) => 2);
+
+            if (!task.IsComleted)
+            {
+                isThreadBlock = false;
+            }
+            Assert.IsFalse(isThreadBlock);
+        }
+
+        [TestMethod]
+        public void ContinueWithQueuesNewTasks()
+        {
+            var task = threadPool.AddTask(() => 5);
+
+            var list = new List<int> { 1, 2, 3, 4, 5 };
+            for (var i = 0; i < list.Count; ++i)
+            {
+                var local = i;
+                task.ContinueWith((x) =>
+                {
+                    list[local] += x;
+                    
+                    return list[local];
+                });
+            }
+            Thread.Sleep(200);
+            for (var i = 0; i < 5; ++i) 
+            {
+                Assert.AreEqual(i+6, list[i]);
+            }
+                
+
+            threadPool.Shutdown();
+        }
+
     }
 }

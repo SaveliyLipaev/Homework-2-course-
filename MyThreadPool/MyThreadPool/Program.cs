@@ -13,10 +13,16 @@ namespace MyThreadPool
         {
             var threadPool = new MyThreadPool(5);
 
-            int GetInt() => 57;
-            var Task = threadPool.AddTask(GetInt);
-            Console.WriteLine(Task.Result);
+            var task = threadPool.AddTask(() => true);
+            Thread.Sleep(100);
+            var flag = false;
+            task.ContinueWith((x) =>
+            {
+                flag = x;
+                return x;
+            });
 
+            Console.WriteLine(flag);
             Console.Read();
 
         }
