@@ -1,25 +1,38 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading.Tasks;
-using System.Threading;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SimpleFTP
 {
-    class Server
+    public class Server
     {
         private TcpListener listener;
         private CancellationTokenSource stopToken = new CancellationTokenSource();
 
         public Server(int port)
         {
+            if (port < IPEndPoint.MinPort || port > IPEndPoint.MaxPort)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
             listener = new TcpListener(IPAddress.Any, port);
         }
-        
+
+        /// <summary>
+        /// Stop server
+        /// </summary>
+        public void Stop()
+        {
+            stopToken.Cancel();
+        }
+
+        /// <summary>
+        /// Server start
+        /// </summary>
         public async Task Start()
         {
             listener.Start();
@@ -39,6 +52,9 @@ namespace SimpleFTP
             }
         }
 
+        /// <summary>
+        /// Сustomer request service
+        /// </summary>
         private async Task ServiceClient(TcpClient client)
         {
             using (var stream = client.GetStream())
@@ -52,17 +68,24 @@ namespace SimpleFTP
 
                     var (command, path) = ParseMessage(message);
 
-                    switch(command)
+                    switch (command)
                     {
                         case "1":
                             await writer.WriteLineAsync(List(path));
                             break;
 
                         case "2":
-                            var contentStream = File.OpenRead(path);
-                            await writer.WriteLineAsync(contentStream.Length.ToString());
-                            contentStream.CopyTo(writer.BaseStream);
-                            contentStream.Close();
+                            try
+                            {
+                                var contentStream = File.OpenRead(path);
+                                await writer.WriteLineAsync(contentStream.Length.ToString());
+                                contentStream.CopyTo(writer.BaseStream);
+                                contentStream.Close();
+                            }
+                            catch
+                            {
+                                await writer.WriteLineAsync("-1");
+                            }
                             break;
 
                         default:
@@ -71,15 +94,21 @@ namespace SimpleFTP
                     }
 
                 }
-            } 
+            }
         }
 
+        /// <summary>
+        /// Parsing client messages
+        /// </summary>
         private (string, string) ParseMessage(string str)
         {
             var tempStr = str.Split();
-            return (tempStr[0],tempStr[1]);
+            return (tempStr[0], tempStr[1]);
         }
 
+        /// <summary>
+        /// Forming a response to the list request
+        /// </summary>
         private string List(string path)
         {
             try
