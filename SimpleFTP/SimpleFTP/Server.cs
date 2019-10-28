@@ -68,6 +68,12 @@ namespace SimpleFTP
 
                     var (command, path) = ParseMessage(message);
 
+                    if (command == null || path == null)
+                    {
+                        await writer.WriteLineAsync("Error command.");
+                        continue;
+                    }
+
                     switch (command)
                     {
                         case "1":
@@ -82,9 +88,14 @@ namespace SimpleFTP
                                 contentStream.CopyTo(writer.BaseStream);
                                 contentStream.Close();
                             }
-                            catch
+                            catch (Exception ex) when (ex is ArgumentException || ex is PathTooLongException || 
+                                ex is DirectoryNotFoundException || ex is FileNotFoundException)
                             {
                                 await writer.WriteLineAsync("-1");
+                            }
+                            catch
+                            {
+                                await writer.WriteLineAsync("Error command.");
                             }
                             break;
 
@@ -103,6 +114,12 @@ namespace SimpleFTP
         private (string, string) ParseMessage(string str)
         {
             var tempStr = str.Split();
+
+            if (tempStr.Length != 2)
+            {
+                return (null, null);
+            }
+
             return (tempStr[0], tempStr[1]);
         }
 
@@ -118,7 +135,7 @@ namespace SimpleFTP
                 var directorysName = directoryInfo.GetDirectories();
 
                 return filesName.Length + directorysName.Length + " "
-                    + string.Join("", filesName.Select(name => $"{name.Name} false "))
+                    + string.Join("", filesName.Select(name => $"{name.Name} False "))
                     + string.Join("", directorysName.Select(name => $"{name.Name} True "));
             }
             catch

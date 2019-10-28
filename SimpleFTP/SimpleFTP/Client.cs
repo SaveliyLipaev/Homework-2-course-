@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SimpleFTP
@@ -14,14 +15,33 @@ namespace SimpleFTP
         private StreamWriter writer;
         private StreamReader reader;
 
+        public bool IsConnection { get; private set; } = false;
+
         public Client(string host, int port)
         {
-            client = new TcpClient(host, port);
-            var stream = client.GetStream();
+            try
+            {
+                client = new TcpClient(host, port);
+            }
+            catch
+            {
+                for (var i = 0; i < 4 && client == null; ++i)
+                {
+                    client = new TcpClient(host, port);
+                    Thread.Sleep(20);
+                }
+            }
 
-            writer = new StreamWriter(stream) { AutoFlush = true };
+            if (client != null)
+            {
+                var stream = client.GetStream();
 
-            reader = new StreamReader(stream);
+                writer = new StreamWriter(stream) { AutoFlush = true };
+
+                reader = new StreamReader(stream);
+
+                IsConnection = true;
+            }
         }
 
         /// <summary>
