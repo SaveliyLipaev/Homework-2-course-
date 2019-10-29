@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace SimpleFTP
         /// <summary>
         /// Client connection to server
         /// </summary>
-        private async Task<bool> Connect()
+        public async Task<bool> Connect()
         {
             var delay = TimeSpan.FromSeconds(1);
             int counter = 0;
@@ -39,7 +40,7 @@ namespace SimpleFTP
                     client.Connect(host, port);
                     break;
                 }
-                catch 
+                catch
                 {
                     ++counter;
                 }
@@ -112,7 +113,7 @@ namespace SimpleFTP
         /// <summary>
         /// List command, returns server response
         /// </summary>
-        public async Task<string> ListCommand(string path)
+        public async Task<(string, List<(string, bool)>)> ListCommand(string path)
         {
             if (!IsConnect)
             {
@@ -122,18 +123,35 @@ namespace SimpleFTP
             try
             {
                 await WriteMessage("1 " + path);
-                return await ReadMessage();
+
+                var message = await ReadMessage();
+
+                if (message == "-1")
+                {
+                    return ("-1", null);
+                }
+
+                var splitMessage = message.Split();
+
+                var list = new List<(string, bool)>();
+
+                for (var i = 1; i < splitMessage.Length - 1; i += 2)
+                {
+                    list.Add((splitMessage[i], Convert.ToBoolean(splitMessage[i + 1])));
+                }
+
+                return (message, list);
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                return (ex.Message, null);
             }
         }
 
         /// <summary>
         /// Get command, server response as file size and byte array itself
         /// </summary>
-        public async Task<(long, byte[])> GetCommand(string path)
+        public async Task<(string, byte[], string)> GetCommand(string path)
         {
             if (!IsConnect)
             {
@@ -142,23 +160,23 @@ namespace SimpleFTP
 
             try
             {
-                await WriteMessage("2 " + path); 
+                await WriteMessage("2 " + path);
 
                 var size = long.Parse(await ReadMessage());
 
                 if (size == -1)
                 {
-                    return (-1, null);
+                    return ("-1", null, null);
                 }
 
                 var content = new byte[size];
                 await reader.BaseStream.ReadAsync(content);
 
-                return (size, content);
+                return (size.ToString(), content, null);
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                return ("-1", null, ex.Message);
             }
         }
     }
