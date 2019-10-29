@@ -34,6 +34,21 @@ namespace SimpleFTP.Tests
         }
 
         [TestMethod]
+        public async Task ListCommandListRightTestAsync()
+        {
+            var answer = await client.ListCommand(path);
+
+            Assert.AreEqual("TestFile.txt", answer.Item2[0].Item1);
+            Assert.IsFalse(answer.Item2[0].Item2);
+
+            Assert.AreEqual("TestDir", answer.Item2[1].Item1);
+            Assert.IsTrue(answer.Item2[1].Item2);
+
+            server.Stop();
+            client.Close();
+        }
+
+        [TestMethod]
         public async Task ListCommandNotRightPath()
         {
             var answer = await client.ListCommand(path + "/NotExist");

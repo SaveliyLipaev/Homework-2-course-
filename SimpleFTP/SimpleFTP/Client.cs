@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SimpleFTP
@@ -17,7 +18,7 @@ namespace SimpleFTP
         private string host;
         private int port;
 
-        public bool IsConnect { get; private set; } = false;
+        public bool IsConnected { get; private set; } = false;
 
         public Client(string host, int port)
         {
@@ -53,7 +54,7 @@ namespace SimpleFTP
                 var stream = client.GetStream();
                 writer = new StreamWriter(stream) { AutoFlush = true };
                 reader = new StreamReader(stream);
-                return IsConnect = true;
+                return IsConnected = true;
             }
 
             return false;
@@ -115,7 +116,7 @@ namespace SimpleFTP
         /// </summary>
         public async Task<(string, List<(string, bool)>)> ListCommand(string path)
         {
-            if (!IsConnect)
+            if (!IsConnected)
             {
                 throw new InvalidOperationException();
             }
@@ -142,9 +143,14 @@ namespace SimpleFTP
 
                 return (message, list);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is SocketException || ex is IOException
+                || ex is OutOfMemoryException || ex is ThreadInterruptedException)
             {
                 return (ex.Message, null);
+            }
+            catch
+            {
+                throw;
             }
         }
 
@@ -153,7 +159,7 @@ namespace SimpleFTP
         /// </summary>
         public async Task<(string, byte[], string)> GetCommand(string path)
         {
-            if (!IsConnect)
+            if (!IsConnected)
             {
                 throw new InvalidOperationException();
             }
@@ -174,9 +180,14 @@ namespace SimpleFTP
 
                 return (size.ToString(), content, null);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is SocketException || ex is IOException
+                || ex is OutOfMemoryException || ex is ThreadInterruptedException)
             {
-                return ("-1", null, ex.Message);
+                return (null, null, ex.Message);
+            }
+            catch
+            {
+                throw;
             }
         }
     }
