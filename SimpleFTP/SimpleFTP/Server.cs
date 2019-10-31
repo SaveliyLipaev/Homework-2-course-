@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace SimpleFTP
 {
+    /// <summary>
+    /// Class implementing simple ftp
+    /// </summary>
     public class Server
     {
         private TcpListener listener;
