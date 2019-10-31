@@ -86,7 +86,7 @@ namespace SimpleFTP
         /// Method for receiving messages from the server, 
         /// with repeated requests if a network error occurs
         /// </summary>
-        private async Task<string> ReadMessage()
+        private async Task<string> ReadMessage() 
         {
             var delay = TimeSpan.FromSeconds(1);
             for (var i = 0; i < 3; ++i)
@@ -143,14 +143,9 @@ namespace SimpleFTP
 
                 return (message, list);
             }
-            catch (Exception ex) when (ex is SocketException || ex is IOException
-                || ex is OutOfMemoryException || ex is ThreadInterruptedException)
+            catch (SocketException ex)
             {
                 return (ex.Message, null);
-            }
-            catch
-            {
-                throw;
             }
         }
 
@@ -180,14 +175,9 @@ namespace SimpleFTP
 
                 return (size.ToString(), content, null);
             }
-            catch (Exception ex) when (ex is SocketException || ex is IOException
-                || ex is OutOfMemoryException || ex is ThreadInterruptedException)
+            catch (SocketException ex)
             {
                 return (null, null, ex.Message);
-            }
-            catch
-            {
-                throw;
             }
         }
     }
