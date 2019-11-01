@@ -5,10 +5,10 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SimpleFTP
+namespace Chat
 {
     /// <summary>
-    /// Class implementing simple ftp
+    /// Class implementing server
     /// </summary>
     public class Server
     {

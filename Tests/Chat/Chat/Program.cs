@@ -1,8 +1,4 @@
-﻿using SimpleFTP;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace Chat
@@ -11,10 +7,12 @@ namespace Chat
     {
         static async Task Main(string[] args)
         {
-            var server = new Server(4000);
-            server.Start();
 
             var chat = new OnlineChat(args);
+
+            var client = new Client("localhost", 4000);
+
+            client.Connect();
 
             while (chat.ChatIsLife)
             {

@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SimpleFTP
+namespace Chat
 {
     /// <summary>
-    /// Class for generating requests to the server
+    /// Class implementing client
     /// </summary>
     public class Client
     {
@@ -54,7 +53,7 @@ namespace SimpleFTP
                 var stream = client.GetStream();
                 writer = new StreamWriter(stream) { AutoFlush = true };
                 reader = new StreamReader(stream);
-                Task.Run(() => ServerListener());
+                Task.Run(async () => await ServerListener());
                 return IsConnected = true;
             }
 
@@ -100,7 +99,7 @@ namespace SimpleFTP
         /// Method for receiving messages from the server, 
         /// with repeated requests if a network error occurs
         /// </summary>
-        private async Task<string> ReadMessage() 
+        private async Task<string> ReadMessage()
         {
             var delay = TimeSpan.FromSeconds(1);
             for (var i = 0; i < 3; ++i)
@@ -123,6 +122,6 @@ namespace SimpleFTP
         {
             client.Close();
         }
-        
+
     }
 }
