@@ -12,7 +12,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="5*"/>
-            <RowDefinition Height="0.75*"/>
+            <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0">
             <Label Content="Port"/>
@@ -23,26 +23,26 @@
             <TextBox Text="{Binding Address}" />
         </StackPanel>
         <StackPanel Grid.Row="2">
-            <Label Content="{Binding StateConnection}"/>
+            <TextBlock Text="{Binding StateConnection}"/>
             <Button Content="Connect" Command="{Binding ConnectButton}"/>
         </StackPanel>
-        <ListView Grid.Row="3" SelectedItem="{Binding SelectedFile}" ItemsSource="{Binding Files.Files}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <ListView Grid.Row="3" SelectedItem="{Binding SelectedFile}" ItemsSource="{Binding Files}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseDoubleClick">
-                    <i:InvokeCommandAction CommandParameter="{Binding SelectedFile}" Command="{Binding SelectedItemDoubleClickCommand}"/>
+                    <i:InvokeCommandAction Command="{Binding SelectedItemDoubleClickCommand}"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Name" Width="180" DisplayMemberBinding="{Binding Name}"/>
-                    <GridViewColumn Header="Is Directory" Width="70" DisplayMemberBinding="{Binding FileType}"/>
+                    <GridViewColumn Header="File Type" Width="70" DisplayMemberBinding="{Binding FileType}"/>
                     <GridViewColumn Header="State Install" Width="75" DisplayMemberBinding="{Binding StateInstall}"/>
                 </GridView>
             </ListView.View>
         </ListView>
         
         <StackPanel Grid.Row="4">
-            <Label Content="{Binding StateDownload}" HorizontalAlignment="Left"/>
+            <TextBlock Text="{Binding StateDownload}" HorizontalAlignment="Left"/>
             <Button Content="Download all" Command="{Binding DownloadAllButton}" HorizontalAlignment="Stretch"/>
         </StackPanel>
     </Grid>

@@ -10,8 +10,8 @@ namespace WpfForFtp.BusinessLogic.ViewModels
 {
     public class BaseViewModel : Bindable, IDisposable
     {
-        readonly CancellationTokenSource _networkTokenSource = new CancellationTokenSource();
-        readonly ConcurrentDictionary<string, ICommand> _cachedCommands = new ConcurrentDictionary<string, ICommand>();
+        private readonly CancellationTokenSource _networkTokenSource = new CancellationTokenSource();
+        private readonly ConcurrentDictionary<string, ICommand> _cachedCommands = new ConcurrentDictionary<string, ICommand>();
 
         public CancellationToken CancellationToken => _networkTokenSource?.Token ?? CancellationToken.None;
 
@@ -19,11 +19,6 @@ namespace WpfForFtp.BusinessLogic.ViewModels
         {
             Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
-        ~BaseViewModel()
-        {
-            Dispose(false);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -36,22 +31,12 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             _networkTokenSource.Cancel();
         }
 
-        public virtual Task OnPageAppearing()
-        {
-            return Task.FromResult(0);
-        }
-
-        public virtual Task OnPageDisappearing()
-        {
-            return Task.FromResult(0);
-        }
-
         protected ICommand MakeCommand(Action<object> commandAction, [CallerMemberName] string propertyName = null)
         {
             return GetCommand(propertyName) ?? SaveCommand(new Command(commandAction), propertyName);
         }
 
-        ICommand SaveCommand(ICommand command, string propertyName)
+        private ICommand SaveCommand(ICommand command, string propertyName)
         {
             if (string.IsNullOrEmpty(propertyName))
             {
@@ -66,7 +51,7 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             return command;
         }
 
-        ICommand GetCommand(string propertyName)
+        private ICommand GetCommand(string propertyName)
         {
             if (string.IsNullOrEmpty(propertyName))
             {
@@ -74,8 +59,7 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             }
 
             return _cachedCommands.TryGetValue(propertyName, out var cachedCommand)
-                ? cachedCommand
-                : null;
+                ? cachedCommand : null;
         }
     }
 }

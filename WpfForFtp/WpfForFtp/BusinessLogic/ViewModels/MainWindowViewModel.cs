@@ -1,6 +1,7 @@
 ﻿using SimpleFTP;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace WpfForFtp.BusinessLogic.ViewModels
     class MainWindowViewModel : BaseViewModel
     {
         private string path = "../../../../";
+
         private Client client;
 
         public string Port
@@ -33,9 +35,9 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             set => Set(value);
         }
 
-        public DirectoryModel Files
+        public List<FileModel> Files
         {
-            get => Get<DirectoryModel>();
+            get => Get<List<FileModel>>();
             set => Set(value);
         }
 
@@ -75,15 +77,13 @@ namespace WpfForFtp.BusinessLogic.ViewModels
         });
 
         public ICommand SelectedItemDoubleClickCommand => MakeCommand(async (obj) =>
-        {
-            var file = obj as FileModel;
-
-            if (file.FileType == FileType.isDir)
+        {   
+            if (SelectedFile.FileType == FileType.isDir)
             {
-                var answer = await client.ListCommand(path += file.Name + '/');
+                var answer = await client.ListCommand(path += SelectedFile.Name + '/');
                 Files = Spliter(answer);
             }
-            else if (file.FileType == FileType.isBack) 
+            else if (SelectedFile.FileType == FileType.isBack) 
             {
                 GetOldPath(ref path);
                 var answer = await client.ListCommand(path);
@@ -91,7 +91,27 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             }
             else
             {
-                
+                StateDownload = "File is being downloaded";
+                SelectedFile.StateInstall = StateInstall.loading;
+                var answer = await client.GetCommand(path + SelectedFile.Name);
+                if (answer.Item1 != null)
+                {
+                    try
+                    {
+                        File.WriteAllBytes(SelectedFile.Name, answer.Item2);
+                        StateDownload = "Download complete";
+                        SelectedFile.StateInstall = StateInstall.installed;
+                    }
+                    catch (Exception e)
+                    {
+                        StateDownload = $"Error: {e.Message}";
+                    }
+                }
+                else
+                {
+                    StateDownload = $"Error: {answer.Item3}";
+                    SelectedFile.StateInstall = StateInstall.notInstalled;
+                }
             }
         });
 
@@ -100,7 +120,7 @@ namespace WpfForFtp.BusinessLogic.ViewModels
 
         });
 
-        private DirectoryModel Spliter((string, List<(string, bool)>) answer)
+        private List<FileModel> Spliter((string, List<(string, bool)>) answer)
         {
             var directoryModel = new DirectoryModel();
             directoryModel.Files = new List<FileModel>();
@@ -118,7 +138,7 @@ namespace WpfForFtp.BusinessLogic.ViewModels
                     Name = file.Item1, StateInstall = StateInstall.notInstalled });
             }
 
-            return directoryModel;
+            return directoryModel.Files;
         }
 
         private void GetOldPath(ref string path)

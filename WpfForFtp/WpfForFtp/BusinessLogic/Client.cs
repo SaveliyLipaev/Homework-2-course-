@@ -41,7 +41,7 @@ namespace SimpleFTP
                     client.Connect(host, port);
                     break;
                 }
-                catch
+                catch(SocketException)
                 {
                     ++counter;
                 }
@@ -168,7 +168,7 @@ namespace SimpleFTP
                 }
 
                 var content = new byte[size];
-                await reader.BaseStream.ReadAsync(content, 0, 16000);
+                await reader.BaseStream.ReadAsync(content, 0, (int)size);
 
                 return (size.ToString(), content, null);
             }
