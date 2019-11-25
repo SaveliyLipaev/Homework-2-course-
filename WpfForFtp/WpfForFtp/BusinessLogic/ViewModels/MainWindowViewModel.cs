@@ -77,13 +77,15 @@ namespace WpfForFtp.BusinessLogic.ViewModels
         });
 
         public ICommand SelectedItemDoubleClickCommand => MakeCommand(async (obj) =>
-        {   
-            if (SelectedFile.FileType == FileType.isDir)
+        {
+            var fileModel = obj as FileModel;
+
+            if (fileModel.FileType == FileType.isDir)
             {
-                var answer = await client.ListCommand(path += SelectedFile.Name + '/');
+                var answer = await client.ListCommand(path += fileModel.Name + '/');
                 Files = Spliter(answer);
             }
-            else if (SelectedFile.FileType == FileType.isBack) 
+            else if (fileModel.FileType == FileType.isBack) 
             {
                 GetOldPath(ref path);
                 var answer = await client.ListCommand(path);
@@ -92,15 +94,16 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             else
             {
                 StateDownload = "File is being downloaded";
-                SelectedFile.StateInstall = StateInstall.loading;
-                var answer = await client.GetCommand(path + SelectedFile.Name);
+                fileModel.StateInstall = StateInstall.loading;
+                var answer = await client.GetCommand(path + fileModel.Name);
                 if (answer.Item1 != null)
                 {
                     try
                     {
-                        File.WriteAllBytes(SelectedFile.Name, answer.Item2);
+                        File.WriteAllBytes(fileModel.Name, answer.Item2);
                         StateDownload = "Download complete";
-                        SelectedFile.StateInstall = StateInstall.installed;
+                        fileModel.StateInstall = StateInstall.installed;
+                        SelectedFile = fileModel;
                     }
                     catch (Exception e)
                     {
@@ -110,7 +113,7 @@ namespace WpfForFtp.BusinessLogic.ViewModels
                 else
                 {
                     StateDownload = $"Error: {answer.Item3}";
-                    SelectedFile.StateInstall = StateInstall.notInstalled;
+                    fileModel.StateInstall = StateInstall.notInstalled;
                 }
             }
         });

@@ -26,10 +26,11 @@
             <TextBlock Text="{Binding StateConnection}"/>
             <Button Content="Connect" Command="{Binding ConnectButton}"/>
         </StackPanel>
-        <ListView Grid.Row="3" SelectedItem="{Binding SelectedFile}" ItemsSource="{Binding Files}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <ListView Grid.Row="3" SelectedItem="{Binding Path=SelectedFile, Mode=TwoWay}"  ItemsSource="{Binding Files}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectionMode="Single"
+            IsSynchronizedWithCurrentItem="True">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseDoubleClick">
-                    <i:InvokeCommandAction Command="{Binding SelectedItemDoubleClickCommand}"/>
+                    <i:InvokeCommandAction CommandParameter="{Binding SelectedFile}" Command="{Binding SelectedItemDoubleClickCommand}"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
             <ListView.View>
