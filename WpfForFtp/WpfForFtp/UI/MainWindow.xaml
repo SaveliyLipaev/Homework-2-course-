@@ -5,29 +5,35 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        Title="FTP" MinHeight="450" MinWidth="350" Height="450" Width="350">
+        Title="FTP" MinHeight="500" MinWidth="450" Height="500" Width="450">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="5*"/>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1.5*"/>
+            <RowDefinition Height="0.4*"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
             <Label Content="Port"/>
             <TextBox Text="{Binding Port}"/>
         </StackPanel>
-        <StackPanel Grid.Row="1">
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="3">
             <Label Content="Address"/>
             <TextBox Text="{Binding Address}" />
         </StackPanel>
-        <StackPanel Grid.Row="2">
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="3">
             <TextBlock Text="{Binding StateConnection}"/>
             <Button Content="Connect" Command="{Binding ConnectButton}"/>
         </StackPanel>
-        <ListView Grid.Row="3" SelectedItem="{Binding Path=SelectedFile, Mode=TwoWay}"  ItemsSource="{Binding Files}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectionMode="Single"
-            IsSynchronizedWithCurrentItem="True">
+        
+        <ListView Grid.Row="3" SelectedItem="{Binding Path=SelectedFile, Mode=TwoWay}"  ItemsSource="{Binding Files}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseDoubleClick">
                     <i:InvokeCommandAction CommandParameter="{Binding SelectedFile}" Command="{Binding SelectedItemDoubleClickCommand}"/>
@@ -35,16 +41,31 @@
             </i:Interaction.Triggers>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Name" Width="180" DisplayMemberBinding="{Binding Name}"/>
-                    <GridViewColumn Header="File Type" Width="70" DisplayMemberBinding="{Binding FileType}"/>
-                    <GridViewColumn Header="State Install" Width="75" DisplayMemberBinding="{Binding StateInstall}"/>
+                    <GridViewColumn Header="Name" Width="100" DisplayMemberBinding="{Binding Name}"/>
+                    <GridViewColumn Header="Type" Width="50" DisplayMemberBinding="{Binding FileType}"/>
                 </GridView>
             </ListView.View>
         </ListView>
-        
-        <StackPanel Grid.Row="4">
-            <TextBlock Text="{Binding StateDownload}" HorizontalAlignment="Left"/>
-            <Button Content="Download all" Command="{Binding DownloadAllButton}" HorizontalAlignment="Stretch"/>
-        </StackPanel>
+
+        <ListView Grid.Row="3" Grid.Column="1" ItemsSource="{Binding DownloadableFiles}" HorizontalAlignment="Stretch">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Name" Width="100" DisplayMemberBinding="{Binding Name}"/>
+                    <GridViewColumn Header="Type" Width="50" DisplayMemberBinding="{Binding FileType}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <ListView Grid.Row="3" Grid.Column="2" ItemsSource="{Binding DownloadHistoryFiles}" HorizontalAlignment="Stretch">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Name" Width="100" DisplayMemberBinding="{Binding Name}"/>
+                    <GridViewColumn Header="Type" Width="50" DisplayMemberBinding="{Binding FileType}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <ListView Grid.Row="4" Grid.ColumnSpan="3" ItemsSource="{Binding Log}"/>
+        <Button Grid.Row="5" Grid.ColumnSpan="3" Content="Download all" Command="{Binding DownloadAllButton}" HorizontalAlignment="Stretch"/>
     </Grid>
 </Window>

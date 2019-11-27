@@ -11,6 +11,6 @@ namespace WpfForFtp.Models
     {
         public string Name { get; set; }
         public FileType FileType { get; set; }
-        public StateInstall StateInstall { get; set; }
+        public StateInstall  StateInstall{ get; set; }
     }
 }
