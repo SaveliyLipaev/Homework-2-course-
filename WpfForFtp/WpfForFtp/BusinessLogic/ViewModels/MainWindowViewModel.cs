@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using WpfForFtp.Helpers;
 using WpfForFtp.Models;
 using static WpfForFtp.AppEnums;
 
@@ -19,12 +20,13 @@ namespace WpfForFtp.BusinessLogic.ViewModels
         private CancellationTokenSource token = new CancellationTokenSource();
         private Client client;
 
+
         public MainWindowViewModel()
         {
-            DownloadableFiles = new ObservableCollection<FileModel>();
-            DownloadHistoryFiles = new ObservableCollection<FileModel>();
-            Log = new ObservableCollection<string>();
-            Task.Run(Download);
+            DownloadableFiles = new AsyncObservableCollection<FileModel>();
+            DownloadHistoryFiles = new AsyncObservableCollection<FileModel>();
+            Log = new AsyncObservableCollection<string>();
+            new Thread(Download) {Name="Download" }.Start();
         }
 
         public string Port
@@ -45,27 +47,27 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             set => Set(value);
         }
 
-        public ObservableCollection<FileModel> Files
+        public AsyncObservableCollection<FileModel> Files
         {
-            get => Get<ObservableCollection<FileModel>>();
+            get => Get<AsyncObservableCollection<FileModel>>();
             set => Set(value);
         }
 
-        public ObservableCollection<FileModel> DownloadableFiles
+        public AsyncObservableCollection<FileModel> DownloadableFiles
         {
-            get => Get<ObservableCollection<FileModel>>();
+            get => Get<AsyncObservableCollection<FileModel>>();
             set => Set(value);
         }
 
-        public ObservableCollection<FileModel> DownloadHistoryFiles
+        public AsyncObservableCollection<FileModel> DownloadHistoryFiles
         {
-            get => Get<ObservableCollection<FileModel>>();
+            get => Get<AsyncObservableCollection<FileModel>>();
             set => Set(value);
         }
 
-        public ObservableCollection<string> Log
+        public AsyncObservableCollection<string> Log
         {
-            get => Get<ObservableCollection<string>>();
+            get => Get<AsyncObservableCollection<string>>();
             set => Set(value);
         }
 
@@ -116,7 +118,6 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             else
             {
                 DownloadableFiles.Add(newFile);
-                await DownloadFileAsync(newFile);
             }
         });
 
@@ -131,9 +132,9 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             }
         });
 
-        private ObservableCollection<FileModel> Spliter((string, List<(string, bool)>) answer)
+        private AsyncObservableCollection<FileModel> Spliter((string, List<(string, bool)>) answer)
         {
-            var files = new ObservableCollection<FileModel>();
+            var files = new AsyncObservableCollection<FileModel>();
 
             if (path != "../../../../")
             {
@@ -188,25 +189,25 @@ namespace WpfForFtp.BusinessLogic.ViewModels
 
         private void Download()
         {
-            while (token.Token.IsCancellationRequested)
-            {
-                if (DownloadableFiles.Count != 0)
+                while (!token.Token.IsCancellationRequested)
                 {
-                    DownloadFileAsync(DownloadableFiles[0]);
+                    if (DownloadableFiles.Count != 0)
+                    {
+                        DownloadFile(DownloadableFiles[0]);
+                    }
+                    Thread.Sleep(200);
                 }
-                Task.Delay(300);
-            }
         }
 
-        private async Task DownloadFileAsync(FileModel file)
+        private void DownloadFile(FileModel file)
         {
             Log.Add($"Download start {file.Name}");
-            var answer = await client.GetCommand(path + file.Name);
-            if (answer.Item1 != null)
+            var answer = client.GetCommand(path + file.Name);
+            if (answer.Result.Item1 != null)
             {
                 try
                 {
-                    File.WriteAllBytes(file.Name, answer.Item2);
+                    File.WriteAllBytes(file.Name, answer.Result.Item2);
                     Log.Add($"Successfully download {file.Name}");
                     DownloadableFiles.Remove(file);
                     DownloadHistoryFiles.Add(file);
@@ -218,7 +219,7 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             }
             else
             {
-                Log.Add($"Error download {file.Name}: {answer.Item3}");
+                Log.Add($"Error download {file.Name}: {answer.Result.Item3}");
             }
         }
     }

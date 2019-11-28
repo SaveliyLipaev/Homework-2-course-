@@ -71,6 +71,7 @@
     </Compile>
     <Compile Include="AppEnums.cs" />
     <Compile Include="BusinessLogic\Client.cs" />
+    <Compile Include="Helpers\AsyncObservableCollection.cs" />
     <Compile Include="Models\FileModel.cs" />
     <Compile Include="BusinessLogic\ViewModels\BaseViewModel.cs" />
     <Compile Include="BusinessLogic\ViewModels\MainWindowViewModel.cs" />
