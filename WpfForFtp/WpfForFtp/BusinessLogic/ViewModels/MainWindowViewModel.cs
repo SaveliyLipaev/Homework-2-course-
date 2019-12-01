@@ -19,14 +19,16 @@ namespace WpfForFtp.BusinessLogic.ViewModels
         private string path = "../../../../";
         private CancellationTokenSource token = new CancellationTokenSource();
         private Client client;
-
+        private Task downloadTask;
 
         public MainWindowViewModel()
         {
             DownloadableFiles = new AsyncObservableCollection<FileModel>();
             DownloadHistoryFiles = new AsyncObservableCollection<FileModel>();
             Log = new AsyncObservableCollection<string>();
-            new Thread(Download) {Name="Download" }.Start();
+            downloadTask = new Task(Download);
+            downloadTask.Start();
+            DownloadableFiles.CollectionChanged += GoTask;
         }
 
         public string Port
@@ -121,7 +123,16 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             }
         });
 
-        public ICommand DownloadAllButton => MakeCommand(async (obj) =>
+        public void GoTask(object sender, EventArgs e)
+        {
+            if (downloadTask.IsCompleted)
+            {
+                downloadTask = new Task(Download);
+                downloadTask.Start();
+            }
+        }
+
+        public ICommand DownloadAllButton => MakeCommand((obj) =>
         {
             foreach (var file in Files)
             {
@@ -187,27 +198,27 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             path = newPath;
         }
 
-        private void Download()
+        private async void Download()
         {
-                while (!token.Token.IsCancellationRequested)
+            while (!token.Token.IsCancellationRequested)
+            {
+                if (DownloadableFiles.Count == 0)
                 {
-                    if (DownloadableFiles.Count != 0)
-                    {
-                        DownloadFile(DownloadableFiles[0]);
-                    }
-                    Thread.Sleep(200);
+                    break;
                 }
+                await DownloadFileAsync(DownloadableFiles[0]);
+            }
         }
 
-        private void DownloadFile(FileModel file)
+        private async Task DownloadFileAsync(FileModel file)
         {
-            Log.Add($"Download start {file.Name}");
-            var answer = client.GetCommand(path + file.Name);
-            if (answer.Result.Item1 != null)
+            Log.Add($"{file.Name} start download");
+            var answer = await client.GetCommand(path + file.Name);
+            if (answer.Item1 != null)
             {
                 try
                 {
-                    File.WriteAllBytes(file.Name, answer.Result.Item2);
+                    File.WriteAllBytes(file.Name, answer.Item2);
                     Log.Add($"Successfully download {file.Name}");
                     DownloadableFiles.Remove(file);
                     DownloadHistoryFiles.Add(file);
@@ -219,7 +230,7 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             }
             else
             {
-                Log.Add($"Error download {file.Name}: {answer.Result.Item3}");
+                Log.Add($"Error download {file.Name}: {answer.Item3}");
             }
         }
     }
