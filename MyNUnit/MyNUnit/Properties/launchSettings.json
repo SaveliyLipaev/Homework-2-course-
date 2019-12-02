@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MyNUnit": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Homework\\Homework-2-course-\\MyNUnit"
+    }
+  }
+}
