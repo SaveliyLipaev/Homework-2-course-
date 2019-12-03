@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="coverlet.collector" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MyNUnit\MyNUnit.csproj" />
+    <ProjectReference Include="..\TestProjects\ProjectForTest1\ProjectForTest1.csproj" />
+    <ProjectReference Include="..\TestProjects\ProjectForTest2\ProjectForTest2.csproj" />
+    <ProjectReference Include="..\TestProjects\ProjectForTest3\ProjectForTest3.csproj" />
+    <ProjectReference Include="..\TestProjects\ProjectForTest4\ProjectForTest4.csproj" />
+    <ProjectReference Include="..\TestProjects\ProjectForTest5\ProjectForTest5.csproj" />
+    <ProjectReference Include="..\TestProjects\ProjectForTest6\ProjectForTest6.csproj" />
+    <ProjectReference Include="..\TestProjects\ProjectForTest7\ProjectForTest7.csproj" />
+    <ProjectReference Include="..\TestProjects\ProjectForTest8\ProjectForTest8.csproj" />
+  </ItemGroup>
+
+</Project>
