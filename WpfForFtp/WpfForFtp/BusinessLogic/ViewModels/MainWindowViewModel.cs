@@ -1,10 +1,8 @@
 ﻿using SimpleFTP;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -17,9 +15,9 @@ namespace WpfForFtp.BusinessLogic.ViewModels
     class MainWindowViewModel : BaseViewModel
     {
         private string path = "../../../../";
-        private CancellationTokenSource token = new CancellationTokenSource();
         private Client client;
         private Task downloadTask;
+        private object locker = new object();
 
         public MainWindowViewModel()
         {
@@ -198,27 +196,27 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             path = newPath;
         }
 
-        private async void Download()
+        private void Download()
         {
-            while (!token.Token.IsCancellationRequested)
+            lock (locker)
             {
-                if (DownloadableFiles.Count == 0)
+                while (DownloadableFiles.Count != 0)
                 {
-                    break;
+                    DownloadFileAsync(DownloadableFiles?[0]);
                 }
-                await DownloadFileAsync(DownloadableFiles[0]);
             }
         }
 
-        private async Task DownloadFileAsync(FileModel file)
+        private void DownloadFileAsync(FileModel file)
         {
+            if (file == null) return;
             Log.Add($"{file.Name} start download");
-            var answer = await client.GetCommand(path + file.Name);
-            if (answer.Item1 != null)
+            var answer = client.GetCommand(path + file.Name);
+            if (answer.Result.Item1 != null)
             {
                 try
                 {
-                    File.WriteAllBytes(file.Name, answer.Item2);
+                    File.WriteAllBytes(file.Name, answer.Result.Item2);
                     Log.Add($"Successfully download {file.Name}");
                     DownloadableFiles.Remove(file);
                     DownloadHistoryFiles.Add(file);
@@ -230,7 +228,7 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             }
             else
             {
-                Log.Add($"Error download {file.Name}: {answer.Item3}");
+                Log.Add($"Error download {file.Name}: {answer.Result.Item3}");
             }
         }
     }
