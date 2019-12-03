@@ -16,7 +16,7 @@ namespace WpfForFtp.BusinessLogic.ViewModels
     {
         private string path = "../../../../";
         private Client client;
-        private Task downloadTask;
+        private Thread threadForDownload;
         private object locker = new object();
 
         public MainWindowViewModel()
@@ -24,8 +24,8 @@ namespace WpfForFtp.BusinessLogic.ViewModels
             DownloadableFiles = new AsyncObservableCollection<FileModel>();
             DownloadHistoryFiles = new AsyncObservableCollection<FileModel>();
             Log = new AsyncObservableCollection<string>();
-            downloadTask = new Task(Download);
-            downloadTask.Start();
+            threadForDownload = new Thread(Download);
+            threadForDownload.Start();
             DownloadableFiles.CollectionChanged += GoTask;
         }
 
@@ -123,10 +123,9 @@ namespace WpfForFtp.BusinessLogic.ViewModels
 
         public void GoTask(object sender, EventArgs e)
         {
-            if (downloadTask.IsCompleted)
+            if (threadForDownload.ThreadState == ThreadState.WaitSleepJoin)
             {
-                downloadTask = new Task(Download);
-                downloadTask.Start();
+                threadForDownload.Interrupt();
             }
         }
 
@@ -198,16 +197,21 @@ namespace WpfForFtp.BusinessLogic.ViewModels
 
         private void Download()
         {
-            lock (locker)
+            while (true)
             {
                 while (DownloadableFiles.Count != 0)
                 {
-                    DownloadFileAsync(DownloadableFiles?[0]);
+                    DownloadFile(DownloadableFiles?[0]);
                 }
+                try
+                {
+                    Thread.Sleep(Timeout.Infinite);
+                }
+                catch (ThreadInterruptedException) { }
             }
         }
 
-        private void DownloadFileAsync(FileModel file)
+        private void DownloadFile(FileModel file)
         {
             if (file == null) return;
             Log.Add($"{file.Name} start download");
@@ -219,7 +223,7 @@ namespace WpfForFtp.BusinessLogic.ViewModels
                     File.WriteAllBytes(file.Name, answer.Result.Item2);
                     Log.Add($"Successfully download {file.Name}");
                     DownloadableFiles.Remove(file);
-                    DownloadHistoryFiles.Add(file);
+                    DownloadHistoryFiles.Add(file); 
                 }
                 catch (Exception e)
                 {
