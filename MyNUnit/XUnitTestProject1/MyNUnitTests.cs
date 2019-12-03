@@ -1,6 +1,7 @@
 using ProjectForTest1;
 using ProjectForTest2;
 using ProjectForTest4;
+using ProjectForTest8;
 using System;
 using Xunit;
 
@@ -66,6 +67,21 @@ namespace MyNUnit.Test
         {
             MyNUnitRunner.Run("..\\..\\..\\..\\TestProjects\\ProjectForTest7");
             Assert.True(typeof(NullReferenceException) == MyNUnitRunner.TestInformation.Take().Expected);
+        }
+
+        [Fact]
+        public void MenhodWithAttributesBeforeClassAndAfterClassTest()
+        {
+            Class8.array = new bool[] { false, false };
+            MyNUnitRunner.Run("..\\..\\..\\..\\TestProjects\\ProjectForTest8");
+            Assert.True(Class2.array[0]);
+            Assert.True(Class2.array[1]);
+        }
+
+        [Fact]
+        public void MethodWithAfterClassOrBeforeClassNotBeStaticTest()
+        {
+            Assert.Throws<AggregateException>(() => MyNUnitRunner.Run("..\\..\\..\\..\\TestProjects\\ProjectForTest9"));
         }
     }
 }

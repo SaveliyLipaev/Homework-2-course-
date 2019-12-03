@@ -1,5 +1,4 @@
 ﻿using MyNUnit.Attributes;
-using System;
 
 namespace ProjectForTest4
 {
