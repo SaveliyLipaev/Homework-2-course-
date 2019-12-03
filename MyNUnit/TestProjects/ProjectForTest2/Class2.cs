@@ -5,33 +5,29 @@ namespace ProjectForTest2
 {
     public class Class2
     {
-        public int count = 0;
+        public static bool[] array;
         [Before]
         public void Before1()
         {
-            count++;
+            array[0] = true;
         }
 
         [Before]
         public void Before2()
         {
-            count++;
+            array[1] = true;
         }
 
         [Test]
         public void Test1()
         {
-        }
-
-        [Test]
-        public void Test2()
-        {
+            array[2] = false;
         }
 
         [After]
         public void After()
         {
-            count++;
+            array[3] = true;
         }
     }
 }

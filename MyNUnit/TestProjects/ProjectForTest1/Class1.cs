@@ -5,7 +5,7 @@ namespace ProjectForTest1
 {
     public class Class1
     {
-        public int count;
+        public static int count;
 
         [Test]
         public void Test1()

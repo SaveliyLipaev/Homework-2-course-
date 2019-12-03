@@ -11,17 +11,23 @@ using MyNUnit.Attributes;
 
 namespace MyNUnit
 {
+    /// <summary>
+    /// Class that implements testing methods marked with annotation test along the specified path
+    /// </summary>
     public static class MyNUnitRunner
     {
-        public static BlockingCollection<string> Logger { get; private set; }
+        public static BlockingCollection<TestInformation> TestInformation { get; private set; }
 
         public static void Run(string path)
         {
             var types = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories).Select(Assembly.LoadFrom).ToHashSet().SelectMany(a => a.ExportedTypes);
-            Logger = new BlockingCollection<string>();
+            TestInformation = new BlockingCollection<TestInformation>();
             Parallel.ForEach(types, TryExecuteAllTestMethods);
         }
 
+        /// <summary>
+        /// Running methods with beforeclass, test, afterclass attributes
+        /// </summary>
         private static void TryExecuteAllTestMethods(Type type)
         {
             ExecuteAllMethodWithAttribute<BeforeClassAttribute>(type);
@@ -29,6 +35,9 @@ namespace MyNUnit
             ExecuteAllMethodWithAttribute<AfterClassAttribute>(type);
         }
 
+        /// <summary>
+        /// Running methods with a specific attribute
+        /// </summary>
         private static void ExecuteAllMethodWithAttribute<AttributeType>(Type type, object instance = null) where AttributeType : Attribute
         {
             var methodsWithAttribute = type.GetTypeInfo().DeclaredMethods.Where(mi => Attribute.IsDefined(mi, typeof(AttributeType)));
@@ -53,23 +62,27 @@ namespace MyNUnit
             Parallel.ForEach(methodsWithAttribute, RunMethod);
         }
 
+        /// <summary>
+        /// Execution of the test method, before that it starts all the methods
+        /// with the annotation before and after the test, all the methods with the annotation after
+        /// </summary>
         private static void ExecuteTestMethod(MethodInfo methodInfo)
         {
-            if (!CheckMethod(methodInfo)) return;
+            CheckMethod(methodInfo);
 
             var attributes = Attribute.GetCustomAttribute(methodInfo, typeof(TestAttribute)) as TestAttribute;
 
             if (attributes.Ignore != null)
             {
-                Logger.Add($"Test method {methodInfo.Name} ignored because {attributes.Ignore}.");
+                TestInformation.Add(new TestInformation(methodInfo.Name, methodInfo.DeclaringType.FullName,
+                    0, false, ignore: attributes.Ignore));
                 return;
             }
 
             var constructor = methodInfo.DeclaringType.GetConstructor(Type.EmptyTypes);
             if (constructor == null)
             {
-                Logger.Add($"Test class {methodInfo.DeclaringType.Name} should have parameterless constructor");
-                return;
+                throw new InvalidOperationException($"Test class {methodInfo.DeclaringType.Name} should have parameterless constructor");
             }
 
             var instance = constructor.Invoke(null);
@@ -93,37 +106,41 @@ namespace MyNUnit
             finally
             {
                 watch.Stop();
-                Logger.Add($"Test method {methodInfo.DeclaringType.FullName}.{methodInfo.Name} {(isCrashed ? "failed" : "succeeded")}. Time: {watch.ElapsedMilliseconds} ms");
+                TestInformation.Add(new TestInformation(methodInfo.Name, methodInfo.DeclaringType.FullName,
+                    watch.ElapsedMilliseconds, !isCrashed, attributes.Expected, attributes.Ignore));
             }
 
             ExecuteAllMethodWithAttribute<AfterAttribute>(methodInfo.DeclaringType, instance);
         }
 
+        /// <summary>
+        /// Execution of the method marked by antotations beforeclass, afterclass, before, after
+        /// </summary>
         private static void ExecuteOtherMethod(MethodInfo methodInfo, object instance, Type attribute)
         {
-            if (!CheckMethod(methodInfo)) return;
+            CheckMethod(methodInfo);
 
             if ((attribute == typeof(BeforeClassAttribute) || attribute == typeof(AfterClassAttribute)) && !methodInfo.IsStatic)
             {
-                Logger.Add($"Error:Methods marked with the BeforeClass or AfterClass attribute can only be static. {methodInfo.Name} not static.");
+                throw new InvalidOperationException($"Error:Methods marked with the BeforeClass or AfterClass attribute can only be static. {methodInfo.Name} not static.");
             }
 
             methodInfo.Invoke(instance, null);
         }
 
-        private static bool CheckMethod(MethodInfo methodInfo)
+        /// <summary>
+        /// Checking the method so that it would be without input parameters and return nothing
+        /// </summary>
+        private static void CheckMethod(MethodInfo methodInfo)
         {
             if (methodInfo.GetParameters().Length > 0)
             {
-                Logger.Add($"Method {methodInfo.Name} cannot receive parameters.");
-                return false;
+                throw new InvalidOperationException($"Method {methodInfo.Name} cannot receive parameters.");
             }
             else if (methodInfo.ReturnType != typeof(void))
             {
-                Logger.Add($"Menthod {methodInfo.Name} cannot return value.");
-                return false;
+                throw new InvalidOperationException($"Menthod {methodInfo.Name} cannot return value.");
             }
-            return true;
         }
     }
 }
