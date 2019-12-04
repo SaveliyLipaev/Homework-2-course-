@@ -1,9 +1,7 @@
 ﻿using SimpleFTP;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using WpfForFtp.Helpers;
@@ -207,7 +205,7 @@ namespace WpfForFtp.BusinessLogic.ViewModels
 
             }
         }
-            private void DownloadFile(FileModel file)
+        private void DownloadFile(FileModel file)
         {
             if (file == null) return;
             Log.Add($"{file.Name} start download");
@@ -219,7 +217,7 @@ namespace WpfForFtp.BusinessLogic.ViewModels
                     File.WriteAllBytes(file.Name, answer.Result.Item2);
                     Log.Add($"Successfully download {file.Name}");
                     DownloadableFiles.Remove(file);
-                    DownloadHistoryFiles.Add(file); 
+                    DownloadHistoryFiles.Add(file);
                 }
                 catch (Exception e)
                 {
