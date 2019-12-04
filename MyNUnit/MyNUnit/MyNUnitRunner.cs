@@ -92,7 +92,10 @@ namespace MyNUnit
             try
             {
                 methodInfo.Invoke(instance, null);
-                isCrashed = false;
+                if (attributes.Expected == null)
+                {
+                    isCrashed = false;
+                }
             }
             catch (Exception ex)
             {

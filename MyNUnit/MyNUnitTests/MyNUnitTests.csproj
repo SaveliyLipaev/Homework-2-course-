@@ -23,6 +23,7 @@
     <ProjectReference Include="..\TestProjects\ProjectForTest6\ProjectForTest6.csproj" />
     <ProjectReference Include="..\TestProjects\ProjectForTest7\ProjectForTest7.csproj" />
     <ProjectReference Include="..\TestProjects\ProjectForTest8\ProjectForTest8.csproj" />
+    <ProjectReference Include="..\TestProjects\ProjectForTest9\ProjectForTest9.csproj" />
   </ItemGroup>
 
 </Project>
