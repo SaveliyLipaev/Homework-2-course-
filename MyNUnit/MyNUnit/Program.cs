@@ -17,9 +17,10 @@ namespace MyNUnit
 
             try
             {
-                Console.WriteLine("Test execution has begun\n");
+                Console.WriteLine("Test execution has begun");
                 MyNUnitRunner.Run(path);
-                Console.WriteLine("Test execution is over\n");
+                MyNUnitRunner.PrintResultTesting();
+                Console.WriteLine("Test execution is over");
             }
             catch (DirectoryNotFoundException)
             {
