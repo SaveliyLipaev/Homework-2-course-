@@ -23,6 +23,15 @@ namespace MyNUnit
             Parallel.ForEach(types, TryExecuteAllTestMethods);
         }
 
+        public static void PrintResultTesting()
+        {
+            foreach (var test in TestInformation)
+            {
+                Console.WriteLine($"{test.AssemblyName}.{test.MethodName} " +
+                    $"{(test.Ignore == null ? ((test.IsPassed ? "Passed" : "Failed") + ". Time:" + test.Time.ToString()) : " ignored due" + test.Ignore)}");
+            }
+        }
+
         /// <summary>
         /// Running methods with beforeclass, test, afterclass attributes
         /// </summary>
