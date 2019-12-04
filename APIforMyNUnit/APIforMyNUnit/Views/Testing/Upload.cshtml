@@ -1,0 +1,13 @@
+﻿@using APIforMyNUnit.Models
+@model UploadAssembiles
+
+@{
+    ViewData["Title"] = "Upload";
+}
+
+<form class="text-center" asp-action="StartTesting" enctype="multipart/form-data" method="post">
+    <input type="file" asp-for="Assemblies" multiple">
+    <input type="submit" value="Начать тестирование" class="pure-button pure-button-primary">
+</form>
+
+
