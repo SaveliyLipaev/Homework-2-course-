@@ -5,7 +5,8 @@ environment:
   - solution_path: MyLazy\MyLazy.sln
   - solution_path: MyThreadPool\MyThreadPool.sln
   - solution_path: SimpleFTP\SimpleFTP.sln
-
+  - solution_path: Tests\Chat\Chat.sln	
+  - solution_path: MyNUnit\MyNUnit.sln
 before_build:
   - nuget restore %solution_path%
 
