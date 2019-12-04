@@ -6,6 +6,7 @@ environment:
   - solution_path: MyThreadPool\MyThreadPool.sln
   - solution_path: SimpleFTP\SimpleFTP.sln
   - solution_path: Tests\Chat\Chat.sln
+  - solution_path: WpfForFtp\WpfForFtp.sln
 
 before_build:
   - nuget restore %solution_path%
