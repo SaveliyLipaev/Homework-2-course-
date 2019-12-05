@@ -11,22 +11,25 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MyNUnit;
 
 namespace APIforMyNUnit.Controllers
 {
     public class TestingController : Controller
     {
-        public TestingController()
+        private HistoryTestingContext dbContext;
+        public TestingController(HistoryTestingContext context)
         {
-
+            dbContext = context;
         }
 
-        public ActionResult UploadAsync()
+        public ActionResult Upload()
         {
             return View();
         }
 
-        public ActionResult StartTesting(UploadAssembiles files) 
+        [HttpPost]
+        public async Task<ActionResult> StartTestingAsync(UploadAssembilesModel files) 
         {
             var assemblies = files.Assemblies
                 .Where(file => file.FileName.EndsWith(".dll"))
@@ -41,9 +44,30 @@ namespace APIforMyNUnit.Controllers
                     return assembly;
                 }).ToList();
 
+            var assemblyTestResults = assemblies.Select(assembly =>
+            {
+                MyNUnitRunner.Run(new List<Assembly> { assembly }, DynamicTestSubmission);
+                var assemblyTestResult = new TestedAssemblyModel()
+                {
+                    Name = assembly.GetName().Name,
+                    Failed = MyNUnitRunner.Failed.Select(t => new TestInformationModel(t)).ToList(),
+                    Succeeded = MyNUnitRunner.Succeeded.Select(t => new TestInformationModel(t)).ToList(),
+                    Ignored = MyNUnitRunner.Ignored.Select(t => new TestInformationModel(t)).ToList(),
+                };
 
-            return View("Upload");
+                return assemblyTestResult;
+            })
+            .ToList();
+
+            await dbContext.Assemblys.AddRangeAsync(assemblyTestResults);
+            await dbContext.SaveChangesAsync();
+
+            return View("TestingProcess", MyNUnitRunner.TestsInformation);
         }
 
+        public ActionResult DynamicTestSubmission()
+        {
+            return View("TestingProcess", MyNUnitRunner.TestsInformation);
+        }
     }
 }

@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APIforMyNUnit", "APIforMyNUnit\APIforMyNUnit.csproj", "{4FED033E-CAD7-4A47-BE4B-E0996179F8AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyNUnitForAPI", "MyNUnitForAPI\MyNUnitForAPI.csproj", "{61F10EB3-2703-4F2F-90E1-3389D769092E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyNUnit", "MyNUnitForAPI\MyNUnit.csproj", "{61F10EB3-2703-4F2F-90E1-3389D769092E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

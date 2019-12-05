@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace APIforMyNUnit.Models
 {
-    public class UploadAssembiles
+    public class UploadAssembilesModel
     {
         public List<IFormFile> Assemblies { get; set; } = new List<IFormFile>();
     }

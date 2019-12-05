@@ -1,6 +1,7 @@
 ﻿using MyNUnit.Attributes;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -14,12 +15,24 @@ namespace MyNUnit
     /// </summary>
     public static class MyNUnitRunner
     {
-        public static BlockingCollection<TestInformation> TestsInformation { get; private set; }
+        public static AsyncObservableCollection<TestInformation> TestsInformation { get; set; }
 
-        public static void Run(Assembly[] assemblies)
+        private static ConcurrentBag<TestInformation> _succeeded;
+        private static ConcurrentBag<TestInformation> _failed;
+        private static ConcurrentBag<TestInformation> _ignored;
+
+        public static IReadOnlyCollection<TestInformation> Succeeded => _succeeded;
+        public static IReadOnlyCollection<TestInformation> Failed => _failed;
+        public static IReadOnlyCollection<TestInformation> Ignored => _ignored;
+
+        public static void Run<T>(List<Assembly> assemblies, Func<T> func) 
         {
             var types = assemblies.ToHashSet().SelectMany(a => a.ExportedTypes);
-            TestsInformation = new BlockingCollection<TestInformation>();
+            TestsInformation = new AsyncObservableCollection<TestInformation>();
+            TestsInformation.CollectionChanged += (obj, args) => func();
+            _succeeded = new ConcurrentBag<TestInformation>();
+            _failed = new ConcurrentBag<TestInformation>();
+            _ignored = new ConcurrentBag<TestInformation>();
             Parallel.ForEach(types, TryExecuteAllTestMethods);
         }
 
@@ -74,6 +87,8 @@ namespace MyNUnit
             {
                 TestsInformation.Add(new TestInformation(methodInfo.Name, methodInfo.DeclaringType.FullName,
                     0, false, ignore: attributes.Ignore));
+                _ignored.Add(new TestInformation(methodInfo.Name, methodInfo.DeclaringType.FullName,
+                    0, false, ignore: attributes.Ignore));
                 return;
             }
 
@@ -107,6 +122,16 @@ namespace MyNUnit
             finally
             {
                 watch.Stop();
+                if (isCrashed)
+                {
+                    _failed.Add(new TestInformation(methodInfo.Name, methodInfo.DeclaringType.FullName,
+                    watch.ElapsedMilliseconds, !isCrashed, attributes.Expected, attributes.Ignore));
+                }
+                else
+                {
+                    _succeeded.Add(new TestInformation(methodInfo.Name, methodInfo.DeclaringType.FullName,
+                    watch.ElapsedMilliseconds, !isCrashed, attributes.Expected, attributes.Ignore));
+                }
                 TestsInformation.Add(new TestInformation(methodInfo.Name, methodInfo.DeclaringType.FullName,
                     watch.ElapsedMilliseconds, !isCrashed, attributes.Expected, attributes.Ignore));
             }

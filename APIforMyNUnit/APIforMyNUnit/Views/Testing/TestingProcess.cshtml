@@ -1,0 +1,23 @@
+﻿@model IEnumerable<TestInformation>
+@{
+    ViewData["Title"] = "TestingProcess";
+}
+
+<h3>Результаты тестирования:</h3>
+<ul>
+    @foreach (var test in Model)
+    {
+        @if (test.Ignore == null && test.IsPassed)
+        {
+            <li>@test.AssemblyName @test.MethodName выполнен успешно. Время: @test.Time </li>
+        }
+        @if (test.Ignore == null && !test.IsPassed)
+        {
+            <li>@test.AssemblyName @test.MethodName не выполнен. Время: @test.Time </li>
+        }
+        @if (test.Ignore != null)
+        {
+            <li>@test.AssemblyName @test.MethodName причина игнорирования: @test.Ignore </li>
+        }
+    }
+</ul>
