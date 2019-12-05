@@ -1,20 +1,18 @@
-﻿using System;
+﻿using APIforMyNUnit.Models;
+using APIforMyNUnit.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using MyNUnit;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using APIforMyNUnit.Models;
-using APIforMyNUnit.Repositories;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using MyNUnit;
 
 namespace APIforMyNUnit.Controllers
 {
+    /// <summary>
+    /// Assembly testing contoller
+    /// </summary>
     public class TestingController : Controller
     {
         private HistoryTestingContext dbContext;
@@ -23,13 +21,20 @@ namespace APIforMyNUnit.Controllers
             dbContext = context;
         }
 
+        /// <summary>
+        /// /Testing/Upload
+        /// </summary>
+        /// <returns>View with upload form</returns>
         public ActionResult Upload()
         {
             return View();
         }
 
+        /// <summary>
+        /// Processing post request, starts downloading and testing assembly
+        /// </summary>
         [HttpPost]
-        public async Task<ActionResult> StartTestingAsync(UploadAssembilesModel files) 
+        public async Task<ActionResult> StartTestingAsync(UploadAssembilesModel files)
         {
             var assemblies = files.Assemblies
                 .Where(file => file.FileName.EndsWith(".dll"))
@@ -44,27 +49,21 @@ namespace APIforMyNUnit.Controllers
                     return assembly;
                 }).ToList();
 
-            var assemblyTestResults = assemblies.Select(assembly =>
+            MyNUnitRunner.Run(assemblies, DynamicTestSubmission);
+
+            foreach (KeyValuePair<string, TestedAssemblyModel> testedAssembly in MyNUnitRunner.AssemblyInformation)
             {
-                MyNUnitRunner.Run(new List<Assembly> { assembly }, DynamicTestSubmission);
-                var assemblyTestResult = new TestedAssemblyModel()
-                {
-                    Name = assembly.GetName().Name,
-                    Failed = MyNUnitRunner.Failed.Select(t => new TestInformationModel(t)).ToList(),
-                    Succeeded = MyNUnitRunner.Succeeded.Select(t => new TestInformationModel(t)).ToList(),
-                    Ignored = MyNUnitRunner.Ignored.Select(t => new TestInformationModel(t)).ToList(),
-                };
+                await dbContext.Assemblys.AddAsync(testedAssembly.Value);
+            }
 
-                return assemblyTestResult;
-            })
-            .ToList();
-
-            await dbContext.Assemblys.AddRangeAsync(assemblyTestResults);
             await dbContext.SaveChangesAsync();
 
-            return View("TestingProcess", MyNUnitRunner.TestsInformation);
+            return DynamicTestSubmission();
         }
 
+        /// <summary>
+        /// For dynamically showing test progress
+        /// </summary>
         public ActionResult DynamicTestSubmission()
         {
             return View("TestingProcess", MyNUnitRunner.TestsInformation);

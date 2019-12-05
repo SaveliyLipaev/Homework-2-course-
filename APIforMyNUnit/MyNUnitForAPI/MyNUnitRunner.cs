@@ -1,9 +1,9 @@
-﻿using MyNUnit.Attributes;
+﻿using APIforMyNUnit.Models;
+using MyNUnit.Attributes;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -15,24 +15,17 @@ namespace MyNUnit
     /// </summary>
     public static class MyNUnitRunner
     {
-        public static AsyncObservableCollection<TestInformation> TestsInformation { get; set; }
+        public static AsyncObservableCollection<TestFullInformationModel> TestsInformation { get; private set; }
+        public static ConcurrentDictionary<string, TestedAssemblyModel> AssemblyInformation { get; private set; }
 
-        private static ConcurrentBag<TestInformation> _succeeded;
-        private static ConcurrentBag<TestInformation> _failed;
-        private static ConcurrentBag<TestInformation> _ignored;
+        private static object locker = new object();
 
-        public static IReadOnlyCollection<TestInformation> Succeeded => _succeeded;
-        public static IReadOnlyCollection<TestInformation> Failed => _failed;
-        public static IReadOnlyCollection<TestInformation> Ignored => _ignored;
-
-        public static void Run<T>(List<Assembly> assemblies, Func<T> func) 
+        public static void Run<T>(List<Assembly> assemblies, Func<T> func)
         {
             var types = assemblies.ToHashSet().SelectMany(a => a.ExportedTypes);
-            TestsInformation = new AsyncObservableCollection<TestInformation>();
+            TestsInformation = new AsyncObservableCollection<TestFullInformationModel>();
+            AssemblyInformation = new ConcurrentDictionary<string, TestedAssemblyModel>();
             TestsInformation.CollectionChanged += (obj, args) => func();
-            _succeeded = new ConcurrentBag<TestInformation>();
-            _failed = new ConcurrentBag<TestInformation>();
-            _ignored = new ConcurrentBag<TestInformation>();
             Parallel.ForEach(types, TryExecuteAllTestMethods);
         }
 
@@ -41,6 +34,15 @@ namespace MyNUnit
         /// </summary>
         private static void TryExecuteAllTestMethods(Type type)
         {
+            AssemblyInformation.TryAdd(type.Assembly.FullName,
+                new TestedAssemblyModel()
+                {
+                    Name = type.Assembly.GetName().Name,
+                    Succeeded = new List<TestInformationModel>(),
+                    Failed = new List<TestInformationModel>(),
+                    Ignored = new List<TestInformationModel>(),
+                });
+
             ExecuteAllMethodWithAttribute<BeforeClassAttribute>(type);
             ExecuteAllMethodWithAttribute<TestAttribute>(type);
             ExecuteAllMethodWithAttribute<AfterClassAttribute>(type);
@@ -85,10 +87,8 @@ namespace MyNUnit
 
             if (attributes.Ignore != null)
             {
-                TestsInformation.Add(new TestInformation(methodInfo.Name, methodInfo.DeclaringType.FullName,
-                    0, false, ignore: attributes.Ignore));
-                _ignored.Add(new TestInformation(methodInfo.Name, methodInfo.DeclaringType.FullName,
-                    0, false, ignore: attributes.Ignore));
+                PerpetuateData(methodInfo.Name, methodInfo.DeclaringType.Assembly.FullName,
+                    0, false, ignore: attributes.Ignore);
                 return;
             }
 
@@ -122,18 +122,9 @@ namespace MyNUnit
             finally
             {
                 watch.Stop();
-                if (isCrashed)
-                {
-                    _failed.Add(new TestInformation(methodInfo.Name, methodInfo.DeclaringType.FullName,
-                    watch.ElapsedMilliseconds, !isCrashed, attributes.Expected, attributes.Ignore));
-                }
-                else
-                {
-                    _succeeded.Add(new TestInformation(methodInfo.Name, methodInfo.DeclaringType.FullName,
-                    watch.ElapsedMilliseconds, !isCrashed, attributes.Expected, attributes.Ignore));
-                }
-                TestsInformation.Add(new TestInformation(methodInfo.Name, methodInfo.DeclaringType.FullName,
-                    watch.ElapsedMilliseconds, !isCrashed, attributes.Expected, attributes.Ignore));
+
+                PerpetuateData(methodInfo.Name, methodInfo.DeclaringType.Assembly.FullName,
+                    watch.ElapsedMilliseconds, isCrashed, attributes.Expected, attributes.Ignore);
             }
 
             ExecuteAllMethodWithAttribute<AfterAttribute>(methodInfo.DeclaringType, instance);
@@ -166,6 +157,35 @@ namespace MyNUnit
             else if (methodInfo.ReturnType != typeof(void))
             {
                 throw new InvalidOperationException($"Menthod {methodInfo.Name} cannot return value.");
+            }
+        }
+
+        /// <summary>
+        /// Method for adding test information to general information about testing and testing specific assemblies
+        /// </summary>
+        private static void PerpetuateData(string methodName, string assemblyName, long time, bool isCrashed, Type expected = null, string ignore = null)
+        {
+            lock (locker)
+            {
+                TestsInformation.Add(new TestFullInformationModel(methodName, assemblyName,
+                    time, !isCrashed, expected, ignore));
+
+                AssemblyInformation.TryRemove(assemblyName, out TestedAssemblyModel testedAssemblyModel);
+
+                if (ignore != null)
+                {
+                    testedAssemblyModel.Ignored.Add(new TestInformationModel() { Name = methodName, Ignore = ignore, Time = 0 });
+                }
+                else if (isCrashed)
+                {
+                    testedAssemblyModel.Failed.Add(new TestInformationModel() { Name = methodName, Time = time });
+                }
+                else
+                {
+                    testedAssemblyModel.Succeeded.Add(new TestInformationModel() { Name = methodName, Time = time });
+                }
+
+                AssemblyInformation.TryAdd(assemblyName, testedAssemblyModel);
             }
         }
     }

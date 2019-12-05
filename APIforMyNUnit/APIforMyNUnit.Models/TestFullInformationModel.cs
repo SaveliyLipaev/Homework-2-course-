@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace MyNUnit
+namespace APIforMyNUnit.Models
 {
     /// <summary>
     /// Class for storing the properties of the method marked by antotation test
     /// </summary>
-    public class TestInformation
+    public class TestFullInformationModel
     {
         /// <summary>
         /// Property with the name of the method labeled annotation test
@@ -37,7 +37,7 @@ namespace MyNUnit
         /// </summary>
         public bool IsPassed { get; }
 
-        public TestInformation(string methodName, string assemblyName, long time,
+        public TestFullInformationModel(string methodName, string assemblyName, long time,
             bool isPassed, Type expected = null, string ignore = null)
         {
             MethodName = methodName;

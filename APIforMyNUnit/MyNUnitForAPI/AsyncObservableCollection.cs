@@ -6,6 +6,9 @@ using System.Threading;
 
 namespace MyNUnit
 {
+    /// <summary>
+    /// Class implementing asynchronous ObservableCollection
+    /// </summary>
     public class AsyncObservableCollection<T> : ObservableCollection<T>
     {
         private SynchronizationContext _synchronizationContext = SynchronizationContext.Current;

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace APIforMyNUnit.Models
 {
+    /// <summary>
+    /// Class for storing successful, failed and ignored tests of a specific assembly
+    /// </summary>
     public class TestedAssemblyModel
     {
         public long Id { get; set; }
