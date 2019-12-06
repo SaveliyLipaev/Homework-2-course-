@@ -1,0 +1,57 @@
+﻿@model IEnumerable<TestedAssemblyModel>
+@{
+    ViewData["Title"] = "History";
+}
+<h2 class="text-center">История тестирований</h2>
+
+<div>
+    @foreach (var assemblyTestResult in Model)
+    {
+        @if (assemblyTestResult.Ignored.Any() || assemblyTestResult.Failed.Any() || assemblyTestResult.Succeeded.Any())
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            <h4>Assembly: @assemblyTestResult.Name</h4>
+                            <ul class="list-group">
+                                <li>Успешно пройденных тестов: @assemblyTestResult.Succeeded.Count</li>
+                                <li>Проваленных тестов: @assemblyTestResult.Failed.Count</li>
+                                <li>Проигнорированных тестов: @assemblyTestResult.Ignored.Count</li>
+                            </ul>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (assemblyTestResult.Succeeded.Any())
+                    {
+                        @foreach (var test in assemblyTestResult.Succeeded)
+                        {
+                            <tr class="table-success">
+                                <td>@test.Name, время выполнения: @test.Time мс</td>
+                            </tr>
+                        }
+                    }
+                    @if (assemblyTestResult.Failed.Any())
+                    {
+                        @foreach (var test in assemblyTestResult.Failed)
+                        {
+                            <tr class="table-danger">
+                                <td>@test.Name, время выполнения: @test.Time мс</td>
+                            </tr>
+                        }
+                    }
+                    @if (assemblyTestResult.Ignored.Any())
+                    {
+                        @foreach (var test in assemblyTestResult.Ignored)
+                        {
+                            <tr class="table-secondary">
+                                <td>@test.Name, причина игнорирования: @test.Ignore</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        }
+    }
+</div>

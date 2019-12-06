@@ -7,6 +7,7 @@ environment:
   - solution_path: SimpleFTP\SimpleFTP.sln
   - solution_path: Tests\Chat\Chat.sln	
   - solution_path: MyNUnit\MyNUnit.sln
+  - solution_path: APIforMyNUnit\APIforMyNUnit.sln
 before_build:
   - nuget restore %solution_path%
 
