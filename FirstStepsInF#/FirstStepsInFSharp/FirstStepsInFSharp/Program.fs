@@ -16,14 +16,14 @@ let main argv =
         let rec countFibonacci accFirst accSecond x =
             match x with
             | 1 -> accFirst
-            | _ -> countFibonacci (accSecond) (accFirst + accSecond) (x - 1)
+            | _ -> countFibonacci accSecond (accFirst + accSecond) (x - 1)
         countFibonacci 0 1 n
 
     let reverse ls =
         let rec doReverse newList oldList =
             match oldList with
             | [] -> newList
-            | _ -> doReverse (oldList.Head::newList) (oldList.Tail)
+            | head::tail -> doReverse (head::newList) tail
         doReverse [] ls
 
     let exponentiationNumberTwo n m =
@@ -32,17 +32,22 @@ let main argv =
             match x with
             | 1 -> acc
             | _ -> exp (acc * 2) (x - 1)
-        let rec doExponentiationNumberTwo list n m =
+        let rec doExponentiationNumberTwo list x m =
             match m with
             | -1 -> list
-            | _ -> doExponentiationNumberTwo (exp (2) (n + m)::list) (n) (m - 1)
-        doExponentiationNumberTwo [] n m
+            | _ -> doExponentiationNumberTwo (x::list) (x / 2) (m - 1)
+        doExponentiationNumberTwo [] (exp 2 (n + m)) m
 
     let getIndex number list =
         let rec doGetIndex number index list =
             match list with
-            | [] -> raise (InvalidOperationException())
-            | _ -> if number = list.Head then index else doGetIndex (number) (index + 1) (list.Tail)
+            | [] -> None
+            | head::tail -> if number = head then Some(index) else doGetIndex number (index + 1) tail
         doGetIndex number 0 list
 
+    let array = exponentiationNumberTwo 3 6
+    printfn "%A" (array)
+    printfn "%A" (getIndex 2 array)
+    printfn "%A" (getIndex 512 array)
+    printfn "%A" (getIndex 8 array)
     0
