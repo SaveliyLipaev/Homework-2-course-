@@ -24,17 +24,18 @@ type TestfindMin() =
 
 
 [<TestFixture>]
-type TestOfMyImmutableQueue () =
+type TestOfMyImmutableStack () =
 
     [<Test>]
     member this.``Push 1 to empty stack`` () =
         let stack = ThreadsafeStack<int>()
-        let expected = 1
-        expected |> stack.Push 
-        stack.TryPop |> should equal expected
+        let expected = Some 1
+        1 |> stack.Push
+        let got = stack.TryPop
+        got |> should equal expected
 
     [<Test>]
-    member this.``Pushg to 1 element  que`` () =
+    member this.``Pushg some to stack`` () =
         let stack = ThreadsafeStack<int>()
         let expected = 3
         1 |> stack.Push 
