@@ -1,4 +1,4 @@
-﻿module Task_2
+﻿module Taks_2
     let printableAsciiSquare (n: int) =
         let rec printSquare (row: int, column: int) =
             match (row, column) with

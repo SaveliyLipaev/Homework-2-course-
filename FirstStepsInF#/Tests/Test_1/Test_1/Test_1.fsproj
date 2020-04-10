@@ -8,7 +8,7 @@
   <ItemGroup>
     <Compile Include="Taks_3.fs" />
     <Compile Include="Taks_2.fs" />
-    <Compile Include="Task_1.fs" />
+    <Compile Include="Taks_1.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
