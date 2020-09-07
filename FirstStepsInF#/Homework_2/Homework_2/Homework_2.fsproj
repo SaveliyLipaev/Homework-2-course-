@@ -6,10 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Number_4.fs" />
-    <Compile Include="Number_3.fs" />
-    <Compile Include="Number_2.fs" />
-    <Compile Include="Number_1.fs" />
+    <Compile Include="Task02_BinaryTreeMap.fs" />
+    <Compile Include="Task03_ExpressionTree.fs" />
+    <Compile Include="Task04_GeneratePrimeSequence.fs" />
+    <Compile Include="Task01_CountNumbers.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
