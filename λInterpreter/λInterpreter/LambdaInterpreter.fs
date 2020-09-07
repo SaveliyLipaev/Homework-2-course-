@@ -46,24 +46,22 @@ module LambdaInterpreter =
     /// </summary>
     let rec substitution varName currT newT =
         match (currT, newT) with
-        | (Lambda (y, term), Variable (_)) -> Lambda(y, term)
-        | _ ->
-            match currT with
-            | Variable (x) ->
-                if (varName = x) then newT else Variable(x)
-            | Application (firstT, secondT) ->
-                Application(substitution varName firstT newT, substitution varName secondT newT)
-            | Lambda (x, term) ->
-                let termFV = findFreeVars term
-                let newTermFV = findFreeVars newT
-                let cond = (Set.contains x newTermFV) && (Set.contains varName termFV)
-                if (not cond) then
-                    Lambda(x, substitution varName term newT)
-                else
-                    let newName = findNewName (Set.union termFV newTermFV)
-                    let firstT = substitution x term (Variable(newName))
-                    let secondT = substitution varName firstT newT
-                    Lambda(newName, secondT)
+        | (Lambda (y, term), Variable (_)) when y = varName -> Lambda(y, term)
+        | (Variable (x), _) when varName = x -> newT
+        | (Variable (x), _) -> currT
+        | (Application (firstT, secondT), _) ->
+            Application(substitution varName firstT newT, substitution varName secondT newT)
+        | (Lambda (x, term), _) ->
+            let termFV = findFreeVars term
+            let newTermFV = findFreeVars newT
+            let cond = (Set.contains x newTermFV) && (Set.contains varName termFV)
+            if (not cond) then
+                Lambda(x, substitution varName term newT)
+            else
+                let newName = findNewName (Set.union termFV newTermFV)
+                let firstT = substitution x term (Variable(newName))
+                let secondT = substitution varName firstT newT
+                Lambda(newName, secondT)
 
     /// <summary>
     /// Performs β-reduction according normal‐order strategy.
@@ -79,11 +77,5 @@ module LambdaInterpreter =
                 | Lambda (x, currentTerm) -> betaReduce (substitution x currentTerm secondT)
                 | _ -> Application(newT, betaReduce secondT)
             | Lambda (x, term) ->
-                let free = findFreeVars term
-                if (Set.contains x free) then
-                    let newName = findNewName free
-                    let newT = substitution x term (Variable(newName))
-                    Lambda(newName, betaReduce newT)
-                else
-                    Lambda(x, betaReduce term)
+                Lambda(x, betaReduce term)
         betaReduce T

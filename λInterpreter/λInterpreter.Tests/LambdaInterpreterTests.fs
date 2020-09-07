@@ -8,7 +8,7 @@ type MyTests() =
     let tempExpression = Application(Lambda("x", Variable("x")), Variable("y"))
 
     [<Fact>]
-    member this.``betaReduction (l.x.y)(l.x.x x x) (l.x.x x x) should equal y``() =
+    member this.``betaReduction (l.x.y) ((l.x.x x x) (l.x.x x x)) should equal y``() =
         let tempTerm = Lambda("x", Application(Variable("x"), Application(Variable("x"), Variable("x"))))
         let term = Application(Lambda("x", Variable("y")), Application(tempTerm, tempTerm))
         betaReduction term |> should equal (Variable("y"))
@@ -41,6 +41,6 @@ type MyTests() =
         one |> should equal (Variable("x"))
 
     [<Fact>]
-    member this.``Id id should equal id"``() =
+    member this.``Id id should equal id``() =
         let term = Lambda("x", Application(Lambda("x", Variable("x")), Variable("x")))
-        betaReduction term |> should equal (Lambda("a", Variable("a")))
+        betaReduction term |> should equal (Lambda("x", Variable("x")))
