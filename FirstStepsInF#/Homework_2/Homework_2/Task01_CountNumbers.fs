@@ -1,7 +1,7 @@
 ﻿module CountNumbers
 
 let countEvenNumberWithMap =
-    List.map (fun elem -> (elem % 2) ^^^ 1) >> List.sum
+    List.map (fun elem -> abs (elem % 2) ^^^ 1) >> List.sum
 
 let countEvenNumberWithFilter =
     List.filter (fun elem -> elem % 2 = 0) >> List.length

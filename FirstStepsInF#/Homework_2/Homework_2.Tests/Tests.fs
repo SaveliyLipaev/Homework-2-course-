@@ -33,11 +33,11 @@ module ``Test: Count even numbers with map, filter, fold`` =
 
     // Проверяем работу функций на разных данных используя FsCheck
     let funToCheck (xs: list<int>) =
-        countEvenNumberWithMap xs = countEvenNumberWithFold xs
+        countEvenNumberWithFold xs = countEvenNumberWithFilter xs && countEvenNumberWithFold xs = countEvenNumberWithMap xs
 
     [<Test>]
     let ``Check with FsCheck`` () =
-        Check.Quick funToCheck
+        Check.QuickThrowOnFailure funToCheck
 
 
 
