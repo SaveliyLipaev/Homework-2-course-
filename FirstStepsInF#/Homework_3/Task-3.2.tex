@@ -1,0 +1,18 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+
+\begin{document}
+  \Large 
+  \begin{center}
+    \textbf{Задача 3.2: док-ть что \\*S K K = I}
+  \end{center}
+  
+  $\\*S\,K\,K = (\lambda x\,y\,z. x \, z \, (y \, z)) \, K \, K \to
+   \\* \to (\lambda y\,z.K\,z\,(y\,z))\,K
+   \\* \to (\lambda y\,z.(\lambda x\,y.x)\,z\,(y\,z))\,K \to
+   \\* \to (\lambda y\,z.(\lambda y.z)\,(y\,z))\,K
+   \\* \to (\lambda y\,z.z)\,K
+   \\* \to \lambda z.z = I$
+  
+\end{document}
