@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "StringCalculatorUsingWorkflows", "StringCalculatorUsingWorkflows\StringCalculatorUsingWorkflows.fsproj", "{CD55F498-2451-4652-8E94-3E076F7DD635}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "StringCalculatorUsingWorkflows.Tests", "StringCalculatorUsingWorkflows.Tests\StringCalculatorUsingWorkflows.Tests.fsproj", "{88FAFF19-D316-4D10-ABBE-324F1EC70AD2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CD55F498-2451-4652-8E94-3E076F7DD635}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD55F498-2451-4652-8E94-3E076F7DD635}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD55F498-2451-4652-8E94-3E076F7DD635}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD55F498-2451-4652-8E94-3E076F7DD635}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88FAFF19-D316-4D10-ABBE-324F1EC70AD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88FAFF19-D316-4D10-ABBE-324F1EC70AD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88FAFF19-D316-4D10-ABBE-324F1EC70AD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88FAFF19-D316-4D10-ABBE-324F1EC70AD2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
