@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "λInterpreter", "λInterpreter\λInterpreter.fsproj", "{11B2CBEC-3DF6-4F17-BB8E-EF0F752511AD}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "λInterpreter.Tests", "λInterpreter.Tests\λInterpreter.Tests.fsproj", "{60DAAD40-D063-47C9-B9F1-E365E7D7FA20}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{11B2CBEC-3DF6-4F17-BB8E-EF0F752511AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11B2CBEC-3DF6-4F17-BB8E-EF0F752511AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11B2CBEC-3DF6-4F17-BB8E-EF0F752511AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11B2CBEC-3DF6-4F17-BB8E-EF0F752511AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60DAAD40-D063-47C9-B9F1-E365E7D7FA20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60DAAD40-D063-47C9-B9F1-E365E7D7FA20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60DAAD40-D063-47C9-B9F1-E365E7D7FA20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60DAAD40-D063-47C9-B9F1-E365E7D7FA20}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
