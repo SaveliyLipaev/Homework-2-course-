@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Homework7", "Homework7\Homework7.fsproj", "{82D173E4-7160-4256-8833-CA62F8587F65}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Homework7.Tests", "Homework7.Tests\Homework7.Tests.fsproj", "{17D2EA94-F713-4BAC-9A49-A94133652320}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{82D173E4-7160-4256-8833-CA62F8587F65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82D173E4-7160-4256-8833-CA62F8587F65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82D173E4-7160-4256-8833-CA62F8587F65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82D173E4-7160-4256-8833-CA62F8587F65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17D2EA94-F713-4BAC-9A49-A94133652320}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17D2EA94-F713-4BAC-9A49-A94133652320}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17D2EA94-F713-4BAC-9A49-A94133652320}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17D2EA94-F713-4BAC-9A49-A94133652320}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
