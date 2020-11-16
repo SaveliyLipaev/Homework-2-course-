@@ -66,29 +66,8 @@ namespace MyLazyTests
             double oldTime = myStopwatchSecondGet.Elapsed.Seconds + (double)myStopwatchSecondGet.Elapsed.Milliseconds / 60;
 
             Assert.IsTrue(oldTime < 0.01);
-        }
-
-        [TestMethod]
-        public void GetReturnSameValue()
-        {
-            var results = new int[threadArr.Count];
-            for (var i = 0; i < threadArr.Count; ++i)
-            {
-                threadArr[i] = new Thread(() => results[i] = lazy.Get());
-                threadArr[i].Start();
-            }
-
-            foreach (var thread in threadArr)
-            {
-                thread.Join();
-            }
-
-            for (var i = 0; i < results.Length; ++i)
-            {
-                Assert.AreEqual(45, results[i]);
-            }
-        }
-
+        } 
+        
         [TestMethod]
         public void GetReturnSameObject()
         {
