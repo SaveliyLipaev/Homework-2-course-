@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Task02_BinaryTreeMap.fs" />
+    <Compile Include="Task03_ExpressionTree.fs" />
+    <Compile Include="Task04_GeneratePrimeSequence.fs" />
+    <Compile Include="Task01_CountNumbers.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+</Project>
