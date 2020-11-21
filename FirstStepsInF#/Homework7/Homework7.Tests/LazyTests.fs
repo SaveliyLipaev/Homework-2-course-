@@ -20,7 +20,7 @@ let ``Multi-threaded lazy calculator calls supplier only one time`` () =
     let mutable counter = ref 0L
     let calculator = LazyFactory.CreateMultiThreadedLazy(fun () -> 
         Interlocked.Increment counter |> ignore
-        (Interlocked.Read counter) |> should lessThan 2)
+        (Interlocked.Read counter) |> should equal 1)
 
     for i in 1..100 do
         ThreadPool.QueueUserWorkItem (fun obj -> calculator.Get ()) |> ignore
@@ -30,7 +30,7 @@ let ``Single-threaded lazy calculator calls supplier only one time`` () =
     let mutable counter = 0
     let calculator = LazyFactory.CreateSingleThreadedLazy(fun () -> 
         counter <- counter + 1
-        counter |> should lessThan 2)
+        counter |> should equal 1)
 
     for i in 1..1000 do
         calculator.Get ()

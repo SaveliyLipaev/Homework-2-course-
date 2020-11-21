@@ -4,9 +4,9 @@ open Homework7.Task2.AsyncDownloader
 open NUnit.Framework
 
 [<Test>]
-let ``Download three pages``=
-    let result = downloadAsync("https://www.google.ru/")
-    Assert.AreEqual(result.Length, 3)
+let ``Download three pages`` () =
+    let result = downloadAsync("http://hwproj.me/courses/34")
+    Assert.AreEqual(result.Length, 29)
 
     for res in result do
         match res with 
@@ -14,7 +14,7 @@ let ``Download three pages``=
         | _ -> Assert.IsTrue(true)
 
         let html = match result.Head with | _, Success(x) -> x | _ -> "Something got horribly wrong"
-        Assert.AreEqual(html.Length, 62477)
+        Assert.AreEqual(html.Length, 84964)
 
 [<Test>]
 let ``Wrong address`` () =
