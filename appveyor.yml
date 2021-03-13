@@ -2,7 +2,9 @@ image: Visual Studio 2019
 
 environment:
   matrix:
+  - solution_path: FirstStepsInF#\Homework_4_GenricsInFSharp\Homrwork_4_GenricsInFSharp.sln
   - solution_path: FirstStepsInF#\Homework_2\Homework_2.sln
+  
 before_build:
   - nuget restore %solution_path%
 
